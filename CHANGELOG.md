@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.2 (unreleased)
+## 0.0.2 - 2026-10-16
 - Docker CLI/daemon check (only when a Dockerfile or compose file exists), `.tool-versions`, `.env.example` vs `.env` key names (values never read), git identity presence, free disk space.
 - `devready explain <check_id>`.
 

@@ -1,6 +1,6 @@
 {
   "name": "devready",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Read-only environment preflight: compares a project's declared Node/Python versions with what is installed.",
   "author": { "name": "DevReady contributors" },
   "license": "MIT"
