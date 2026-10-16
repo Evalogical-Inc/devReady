@@ -14,7 +14,10 @@ EXIT_OK, EXIT_FAILED, EXIT_USAGE, EXIT_INTERNAL = 0, 1, 2, 3
 
 def _text(results: list[Result]) -> str:
     lines = ["DevReady - Environment Check", ""]
-    lines += [f"[{r.status.value.upper():<5}] {r.title:<12} {r.summary}" for r in results]
+    for r in results:
+        lines.append(f"[{r.status.value.upper():<5}] {r.title:<12} {r.summary}")
+        if r.status is not Status.PASS and r.suggestion:
+            lines.append(f"    {r.suggestion}")
     lines += ["", "No changes were made to your system."]
     return "\n".join(lines)
 
