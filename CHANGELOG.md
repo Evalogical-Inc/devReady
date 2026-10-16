@@ -2,6 +2,7 @@
 
 ## Unreleased
 - A tool whose version command exits with an error (for example `dotnet` with only a runtime installed) now reports "Version command failed" instead of "Version output not recognized".
+- Version commands now get 15 seconds instead of 5, so slow Windows shims (such as `yarn.cmd`) no longer report "Could not run version command".
 
 ## 1.0.0 - 2026-10-16
 - First stable release. No behaviour changes since 0.3.0.
