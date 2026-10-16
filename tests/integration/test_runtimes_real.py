@@ -19,6 +19,7 @@ ON_CI = os.environ.get("CI") == "true"
 def announce(capsys, text):
     if ON_CI:
         with capsys.disabled():
+            print()  # the runner only parses a command that starts its own line
             print(f"::notice title=devready runtime::{text}")
 
 
