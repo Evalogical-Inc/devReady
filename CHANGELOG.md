@@ -1,6 +1,7 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-10-16
+- Text output now shows the suggestion under each non-passing result (community PR #6, fixes #2).
 - Fix: a pin file with short hostile text (e.g. `.nvmrc`, `rust-toolchain.toml`, `global.json`, `.tool-versions`) was echoed in the summary when the matching tool was not installed. Only specs the matcher fully parses are now shown. Affects 0.2.0 and earlier.
 - Docs: check catalog, architecture, security model, versioning policy; CI matrix adds Python 3.11/3.12.
 - Platform checks, shown only when relevant: Windows long paths, PowerShell execution policy, `core.autocrlf`; macOS Xcode CLT and Linux compiler/make for native builds.

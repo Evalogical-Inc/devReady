@@ -2,7 +2,7 @@
 
 Principles (unchanged): read-only, local-first, zero runtime dependencies, Python >= 3.10, never print env values or raw command output.
 
-## Where we are (0.2.0)
+## Where we are (0.3.0)
 
 - Tools: Git, Node, npm, Python. Docker, Go, Ruby, Java, Rust, .NET, pnpm, Yarn, Bun only when the project declares them (details in the sections below).
 - Pins compared: `.nvmrc`, `.node-version`, `.python-version`, `package.json` engines.node, `pyproject.toml` requires-python, `.tool-versions` (node/python only).
