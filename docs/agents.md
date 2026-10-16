@@ -20,7 +20,7 @@ Local test: `claude --plugin-dir .` in this repo. Adds the `devready` skill, `/d
 ```toml
 [mcp_servers.devready]
 command = "uvx"
-args = ["--from", "git+https://github.com/Evalogical-Inc/devReady", "devready", "mcp"]
+args = ["--from", "devready-cli", "devready", "mcp"]
 ```
 
-The CLI must be installed first: `pipx install git+https://github.com/Evalogical-Inc/devReady` (PyPI release planned).
+The CLI must be installed first: `pipx install devready-cli`.

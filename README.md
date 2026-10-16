@@ -8,6 +8,7 @@
 Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 
 [![CI](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml/badge.svg)](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/devready-cli)](https://pypi.org/project/devready-cli/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)
@@ -61,12 +62,12 @@ No changes were made to your system.
 
 ## Install
 
-PyPI release is planned. Until then, install straight from GitHub:
+Install from [PyPI](https://pypi.org/project/devready-cli/):
 
 ```bash
-pipx install git+https://github.com/Evalogical-Inc/devReady
+pipx install devready-cli
 # or run without installing:
-uvx --from git+https://github.com/Evalogical-Inc/devReady devready check
+uvx --from devready-cli devready check
 ```
 
 From a clone (for development):
@@ -138,7 +139,7 @@ DevReady ships the same engine three ways, so your agent can verify the environm
 # ~/.codex/config.toml (verify keys against your Codex version)
 [mcp_servers.devready]
 command = "uvx"
-args = ["--from", "git+https://github.com/Evalogical-Inc/devReady", "devready", "mcp"]
+args = ["--from", "devready-cli", "devready", "mcp"]
 ```
 
 **Anything else** - drop [`AGENTS.md`](AGENTS.md) in your repo, or copy [`skills/devready`](skills/devready/SKILL.md). Details in [docs/agents.md](docs/agents.md).
@@ -163,7 +164,7 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 - [ ] Docker CLI + daemon reachability
 - [ ] `.tool-versions` (asdf/mise) and `.env.example` vs `.env` key-name diff (names only)
 - [ ] Port-in-use, disk space, git identity checks
-- [ ] PyPI release, `devready explain <check_id>`
+- [ ] `devready explain <check_id>`
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

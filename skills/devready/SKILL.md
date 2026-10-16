@@ -11,7 +11,7 @@ Run from the project root:
 devready check --format json
 ```
 
-If `devready` is not installed, use `uvx --from git+https://github.com/Evalogical-Inc/devReady devready check --format json` or `pipx run --spec git+https://github.com/Evalogical-Inc/devReady devready check --format json`. Do not install anything without asking the user.
+If `devready` is not installed, use `uvx --from devready-cli devready check --format json` or `pipx run --spec devready-cli devready check --format json`. Do not install anything without asking the user.
 
 ## Reading the result
 
