@@ -44,9 +44,9 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [ ] Optional `.devready.toml` to declare requirements and silence checks (needs a 3.10-safe parser, or limit to JSON).
 - [ ] `devready init` generates that file from what it detects.
 
-## 0.4 - Team and CI
+## 0.4 - Team and CI (in progress)
 
-- [ ] Official GitHub Action wrapping `devready check`.
+- [x] GitHub Action (`action.yml`, composite). Untested on a real runner; needs a release with the new flags.
 - [ ] Shared baseline file (committed) to compare against.
 - [ ] `--watch`/diff mode: show only what changed since the last run.
 

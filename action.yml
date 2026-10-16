@@ -1,0 +1,45 @@
+name: DevReady check
+description: Read-only environment preflight. Fails the job when a declared requirement is unmet.
+branding:
+  icon: check-circle
+  color: green
+inputs:
+  project:
+    description: Directory whose version pins to compare.
+    default: "."
+  format:
+    description: text, json, junit or sarif.
+    default: text
+  only:
+    description: Space-separated check ids or prefixes to run (empty = all).
+    default: ""
+  skip:
+    description: Space-separated check ids or prefixes to skip.
+    default: ""
+  version:
+    description: devready-cli version to install (empty = latest).
+    default: ""
+  python-version:
+    description: Python used to run DevReady (not your project's Python).
+    default: "3.12"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    # Inputs go through env vars, never interpolated into the script, to avoid shell injection.
+    - shell: bash
+      env:
+        DR_PROJECT: ${{ inputs.project }}
+        DR_FORMAT: ${{ inputs.format }}
+        DR_ONLY: ${{ inputs.only }}
+        DR_SKIP: ${{ inputs.skip }}
+        DR_VERSION: ${{ inputs.version }}
+      run: |
+        set -eu
+        python -m pip install --quiet "devready-cli${DR_VERSION:+==$DR_VERSION}"
+        args=(check --project "$DR_PROJECT" --format "$DR_FORMAT")
+        for id in $DR_ONLY; do args+=(--only "$id"); done
+        for id in $DR_SKIP; do args+=(--skip "$id"); done
+        python -m devready "${args[@]}"

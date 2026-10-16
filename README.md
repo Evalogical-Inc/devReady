@@ -127,6 +127,16 @@ devready --version
 }
 ```
 
+## Use it in CI (GitHub Actions)
+
+```yaml
+- uses: Evalogical-Inc/devReady@main   # pin a release tag once published
+  with:
+    skip: project.ports                  # optional; also: only, format, project, version
+```
+
+The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
+
 ## Use it with AI coding agents
 
 DevReady ships the same engine three ways, so your agent can verify the environment *before* it installs, builds or tests.

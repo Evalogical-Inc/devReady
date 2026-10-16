@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- GitHub Action (`action.yml`) wrapping `devready check`.
 - `--format junit|sarif`, `--only`/`--skip` filters, and `devready fix --plan` (suggestions only).
 - Project health: `.env` not git-ignored, `node_modules` missing/older than lockfile, declared ports already in use.
 - pnpm, Yarn and Bun checks when `package.json` `packageManager` names them.
