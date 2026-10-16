@@ -44,11 +44,11 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [x] Optional `.devready.json` (JSON, so no parser dependency): `skip` ids, `require` node/python, required `env` names.
 - [x] `devready init` prints a starter file (does not write it; DevReady stays read-only).
 
-## 0.4 - Team and CI (in progress)
+## 0.4 - Team and CI
 
 - [x] GitHub Action (`action.yml`, composite). Untested on a real runner; needs a release with the new flags.
-- [ ] Shared baseline file (committed) to compare against.
-- [ ] `--watch`/diff mode: show only what changed since the last run.
+- [x] `--baseline FILE`: compare with a saved `--format json` report (commit it for a team baseline). Shows new/changed results; exit 1 only for a new or worse `fail`. Results that disappeared are not reported.
+- [x] Diff mode = `--baseline` against your own saved snapshot. DevReady never writes the snapshot (read-only), and there is no `--watch` loop.
 
 ## 0.5 - Platform specifics
 

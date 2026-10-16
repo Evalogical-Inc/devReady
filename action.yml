@@ -16,6 +16,9 @@ inputs:
   skip:
     description: Space-separated check ids or prefixes to skip.
     default: ""
+  baseline:
+    description: Path to a committed `--format json` report; only changes are shown and only a new or worse failure fails the job.
+    default: ""
   version:
     description: devready-cli version to install (empty = latest).
     default: ""
@@ -36,10 +39,12 @@ runs:
         DR_ONLY: ${{ inputs.only }}
         DR_SKIP: ${{ inputs.skip }}
         DR_VERSION: ${{ inputs.version }}
+        DR_BASELINE: ${{ inputs.baseline }}
       run: |
         set -eu
         python -m pip install --quiet "devready-cli${DR_VERSION:+==$DR_VERSION}"
         args=(check --project "$DR_PROJECT" --format "$DR_FORMAT")
         for id in $DR_ONLY; do args+=(--only "$id"); done
         for id in $DR_SKIP; do args+=(--skip "$id"); done
+        if [ -n "$DR_BASELINE" ]; then args+=(--baseline "$DR_BASELINE"); fi
         python -m devready "${args[@]}"

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from devready import __version__
+from devready.baseline import diff, load_baseline
 from devready.formats import fix_plan, junit, sarif
 from devready.models import Result, Status
 from devready.runner import matches, report, run_checks
@@ -30,6 +31,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help="run read-only environment checks")
     check.add_argument("--format", choices=["text", "json", "junit", "sarif"], default="text")
+    check.add_argument(
+        "--baseline", metavar="FILE", help="saved --format json report; show only what changed"
+    )
     fix = sub.add_parser("fix", help="print suggested fixes (never runs them)")
     fix.add_argument("--plan", action="store_true", help="required: list steps without running")
     explain = sub.add_parser("explain", help="explain what a check id means")
@@ -89,12 +93,24 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "fix":
         print(fix_plan(results))
         return EXIT_OK
+
+    regressed = None
+    if args.baseline:
+        base = load_baseline(Path(args.baseline))
+        if base is None:
+            print("devready: baseline is not a readable devready JSON report", file=sys.stderr)
+            return EXIT_USAGE
+        total = len(results)
+        results, regressed = diff(results, base)
+        print(f"Compared with baseline: {len(results)} of {total} changed.", file=sys.stderr)
     if args.format == "json":
         print(json.dumps(report(results), indent=2))
     elif args.format in ("junit", "sarif"):
         print(junit(results) if args.format == "junit" else sarif(results))
     else:
         print(_text(results))
+    if regressed is not None:  # with a baseline only a new or worse FAIL breaks the build
+        return EXIT_FAILED if regressed else EXIT_OK
     return EXIT_FAILED if any(r.status is Status.FAIL for r in results) else EXIT_OK
 
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- `check --baseline FILE` (and `baseline:` Action input): show only results that changed since a saved JSON report.
 - Optional `.devready.json` (`skip`, `require`, `env`) and `devready init` (prints a starter).
 
 ## 0.1.0 - 2026-10-16

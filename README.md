@@ -90,6 +90,8 @@ devready explain docker.daemon    # what a check means and how to fix it
 devready check --format junit     # or sarif, for CI
 devready check --only project --skip project.ports   # filter by id or prefix
 devready fix --plan               # suggested steps only; never runs them
+devready check --format json > baseline.json   # save a snapshot (commit it for a team baseline)
+devready check --baseline baseline.json          # show only what changed; fail only on new/worse failures
 devready init > .devready.json    # optional config: skip ids, require node/python, required env names
 devready mcp                      # run as an MCP server over stdio
 devready --version
