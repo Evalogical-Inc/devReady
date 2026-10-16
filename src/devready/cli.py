@@ -25,6 +25,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help="run read-only environment checks")
     check.add_argument("--format", choices=["text", "json"], default="text")
+    explain = sub.add_parser("explain", help="explain what a check id means")
+    explain.add_argument("check_id")
     sub.add_parser("mcp", help="run as an MCP server over stdio")
     check.add_argument("--project", default=".", help="directory whose version pins to compare")
 
@@ -37,6 +39,16 @@ def main(argv: list[str] | None = None) -> int:
         from devready.mcp_server import serve
 
         return serve()
+
+    if args.command == "explain":
+        from devready.explain import EXPLANATIONS
+
+        text = EXPLANATIONS.get(args.check_id)
+        if text is None:
+            print(f"devready: unknown check id; known: {', '.join(EXPLANATIONS)}", file=sys.stderr)
+            return EXIT_USAGE
+        print(text)
+        return EXIT_OK
 
     root = Path(args.project)
     if not root.is_dir():

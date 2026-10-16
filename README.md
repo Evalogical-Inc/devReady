@@ -85,6 +85,7 @@ python -m pip install -e ".[dev]"
 devready check                    # human-readable report for the current directory
 devready check --project ../app   # inspect another project's pins
 devready check --format json      # machine-readable (see docs/schema.json)
+devready explain docker.daemon    # what a check means and how to fix it
 devready mcp                      # run as an MCP server over stdio
 devready --version
 ```
@@ -155,16 +156,15 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Limitations (alpha)
 
-- Checks today: Python, Git, Node.js, npm, and the project pins listed above.
+- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), and free disk space.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
 - The Python version compared is the interpreter running DevReady, not necessarily your project's virtualenv.
 
 ## Roadmap
 
-- [ ] Docker CLI + daemon reachability
-- [ ] `.tool-versions` (asdf/mise) and `.env.example` vs `.env` key-name diff (names only)
-- [ ] Port-in-use, disk space, git identity checks
-- [ ] `devready explain <check_id>`
+- [x] Docker CLI + daemon reachability, `.tool-versions`, `.env` key-name diff, disk space, git identity, `devready explain`
+- [ ] Port-in-use checks (ports read from compose files)
+- [ ] More ecosystems (Go, Rust, Java, Ruby pins)
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

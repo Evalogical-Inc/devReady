@@ -13,7 +13,7 @@
         "required": ["check_id", "title", "status", "summary", "suggestion", "docs_url"],
         "additionalProperties": false,
         "properties": {
-          "check_id": { "type": "string", "pattern": "^[a-z]+(\\.[a-z]+)+$" },
+          "check_id": { "type": "string", "pattern": "^[a-z_]+(\\.[a-z_]+)+$" },
           "title": { "type": "string" },
           "status": { "enum": ["pass", "warn", "fail", "skip", "error"] },
           "summary": { "type": "string" },

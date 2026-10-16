@@ -113,4 +113,60 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                     Status.FAIL,
                 )
             )
-    return out
+
+    if (text := _read(root / ".tool-versions")) is not None:
+        want = {"nodejs": "node", "node": "node", "python": "python"}
+        for line in text.splitlines():
+            parts = line.split("#")[0].split()
+            if len(parts) >= 2 and parts[0] in want:
+                is_node = want[parts[0]] == "node"
+                out.append(
+                    _compare(
+                        f"project.{want[parts[0]]}.tool_versions",
+                        "Node tool-versions" if is_node else "Python tool-versions",
+                        ".tool-versions",
+                        parts[1],
+                        node_v if is_node else py_v,
+                        Status.WARN,
+                    )
+                )
+
+    return out + _check_env(root)
+
+
+_ENV_KEY = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=", re.M)
+_SAFE_NAME = re.compile(r"^[A-Z0-9_]{1,40}$")
+
+
+def _check_env(root: Path) -> list[Result]:
+    """Compare variable NAMES in .env.example with .env. Values are never kept or shown."""
+    example = _read(root / ".env.example")
+    if example is None:
+        return []
+    cid, title = "project.env.keys", "Env keys"
+    wanted = set(_ENV_KEY.findall(example))
+    env_text = _read(root / ".env")
+    if env_text is None:
+        return [
+            Result(
+                cid,
+                title,
+                Status.WARN,
+                f".env not found ({len(wanted)} keys in .env.example)",
+                "Copy .env.example to .env and fill in the values.",
+            )
+        ]
+    missing = sorted(wanted - set(_ENV_KEY.findall(env_text)))
+    if not missing:
+        return [Result(cid, title, Status.PASS, f"all {len(wanted)} .env.example keys present")]
+    shown = [m for m in missing if _SAFE_NAME.match(m)][:10]
+    extra = f": {', '.join(shown)}" if shown else ""
+    return [
+        Result(
+            cid,
+            title,
+            Status.WARN,
+            f"{len(missing)} key(s) in .env.example missing from .env{extra}",
+            "Add the missing keys to .env (values are never read or shown by DevReady).",
+        )
+    ]
