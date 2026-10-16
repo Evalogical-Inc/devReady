@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Platform checks, shown only when relevant: Windows long paths, PowerShell execution policy, `core.autocrlf`; macOS Xcode CLT and Linux compiler/make for native builds.
+
 ## 0.2.0 - 2026-10-16
 - `check --baseline FILE` (and `baseline:` Action input): show only results that changed since a saved JSON report.
 - Optional `.devready.json` (`skip`, `require`, `env`) and `devready init` (prints a starter).

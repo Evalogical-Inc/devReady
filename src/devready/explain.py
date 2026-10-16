@@ -47,4 +47,8 @@ EXPLANATIONS = {
     "project.node.config": "require.node in .devready.json is a hard requirement (fails when unmet).",
     "project.python.config": "require.python in .devready.json is a hard requirement (fails when unmet).",
     "project.env.required": "Variable NAMES listed under env in .devready.json must be set in the environment. Values are never read.",
+    "platform.long_paths": "Windows only, when package.json exists. Without LongPathsEnabled, deeply nested node_modules paths can exceed 260 characters and installs fail.",
+    "platform.exec_policy": "Windows only, when package.json exists. A Restricted or AllSigned PowerShell policy blocks npm.ps1 ('running scripts is disabled'). Use cmd or relax the policy for your user.",
+    "platform.autocrlf": "Windows only, in a git repo without .gitattributes. Unset core.autocrlf can flip line endings between Windows and Linux/macOS contributors.",
+    "platform.build_tools": "macOS/Linux, when the project has binding.gyp, setup.py, Gemfile or Cargo.toml. Native dependencies need a compiler (Xcode CLT on macOS, cc/gcc/clang and make on Linux).",
 }

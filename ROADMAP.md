@@ -50,11 +50,11 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [x] `--baseline FILE`: compare with a saved `--format json` report (commit it for a team baseline). Shows new/changed results; exit 1 only for a new or worse `fail`. Results that disappeared are not reported.
 - [x] Diff mode = `--baseline` against your own saved snapshot. DevReady never writes the snapshot (read-only), and there is no `--watch` loop.
 
-## 0.5 - Platform specifics
+## 0.5 - Platform specifics (WSL left)
 
-- [ ] Windows: long paths enabled, execution policy, `core.autocrlf`.
+- [x] Windows: long paths (registry), PowerShell execution policy (blocks npm.ps1), `core.autocrlf` without `.gitattributes`. Only when relevant (`package.json` / a git repo). Verified against real long-paths and policy values on one Windows machine; the warning paths are unit-tested only.
 - [ ] WSL version and Docker Desktop backend.
-- [ ] macOS: Xcode CLT; Linux: common missing build deps.
+- [x] macOS Xcode CLT / Linux `cc`+`make`, only when `binding.gyp`, `setup.py`, `Gemfile` or `Cargo.toml` exists. Not run on macOS or Linux yet (CI runs the suite there, with fakes).
 
 ## 1.0 - Stabilize
 
