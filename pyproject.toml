@@ -10,10 +10,24 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
+authors = [{ name = "Evalogical Inc" }]
+keywords = ["developer-tools", "cli", "doctor", "environment", "preflight", "mcp", "claude-code", "codex", "ai-agents", "nvmrc", "onboarding"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Quality Assurance",
+]
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "jsonschema>=4"]
+
+[project.urls]
+Homepage = "https://github.com/Evalogical-Inc/devReady"
+Issues = "https://github.com/Evalogical-Inc/devReady/issues"
 
 [project.scripts]
 devready = "devready.cli:main"

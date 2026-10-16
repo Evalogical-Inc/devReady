@@ -1,5 +1,5 @@
 {
   "mcpServers": {
-    "devready": { "command": "uvx", "args": ["devready", "mcp"] }
+    "devready": { "command": "uvx", "args": ["--from", "git+https://github.com/Evalogical-Inc/devReady", "devready", "mcp"] }
   }
 }

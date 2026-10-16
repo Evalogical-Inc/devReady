@@ -5,8 +5,8 @@ DevReady is a CLI; agents call `devready check --format json` (schema: `schema.j
 ## Claude Code
 
 ```text
-/plugin marketplace add <owner>/devready
-/plugin install devready --marketplace <owner>/devready
+/plugin marketplace add Evalogical-Inc/devReady
+/plugin install devready --marketplace Evalogical-Inc/devReady
 ```
 
 Local test: `claude --plugin-dir .` in this repo. Adds the `devready` skill, `/devready:doctor` and the MCP server (`.mcp.json`).
@@ -20,7 +20,7 @@ Local test: `claude --plugin-dir .` in this repo. Adds the `devready` skill, `/d
 ```toml
 [mcp_servers.devready]
 command = "uvx"
-args = ["devready", "mcp"]
+args = ["--from", "git+https://github.com/Evalogical-Inc/devReady", "devready", "mcp"]
 ```
 
-The CLI itself must be installed (`pipx install devready` / `uvx devready`) once it is published to PyPI; until then use `pip install -e .` from a clone.
+The CLI must be installed first: `pipx install git+https://github.com/Evalogical-Inc/devReady` (PyPI release planned).

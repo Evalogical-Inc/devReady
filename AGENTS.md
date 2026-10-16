@@ -1,6 +1,6 @@
 # Agent instructions
 
-Before running installs, builds or tests in a project, or when setup errors mention versions or missing tools, run `devready check --format json` (or `uvx devready check --format json`) and read the result.
+Before running installs, builds or tests in a project, or when setup errors mention versions or missing tools, run `devready check --format json` (or `uvx --from git+https://github.com/Evalogical-Inc/devReady devready check --format json`) and read the result.
 
 - `fail` means a declared requirement is unmet: tell the user and suggest switching versions; do not work around it.
 - `skip`/`error` mean "not evaluated", not "ok".
