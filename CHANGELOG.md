@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Optional `.devready.json` (`skip`, `require`, `env`) and `devready init` (prints a starter).
+
 ## 0.1.0 - 2026-10-16
 - GitHub Action (`action.yml`) wrapping `devready check`.
 - `--format junit|sarif`, `--only`/`--skip` filters, and `devready fix --plan` (suggestions only).

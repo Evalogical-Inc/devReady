@@ -8,7 +8,7 @@ from pathlib import Path
 from devready import __version__
 from devready.formats import fix_plan, junit, sarif
 from devready.models import Result, Status
-from devready.runner import report, run_checks
+from devready.runner import matches, report, run_checks
 
 EXIT_OK, EXIT_FAILED, EXIT_USAGE, EXIT_INTERNAL = 0, 1, 2, 3
 
@@ -20,12 +20,8 @@ def _text(results: list[Result]) -> str:
     return "\n".join(lines)
 
 
-def _matches(check_id: str, ids: list[str]) -> bool:
-    return any(check_id == i or check_id.startswith(i + ".") for i in ids)
-
-
 def _selected(check_id: str, only: list[str], skip: list[str]) -> bool:
-    return (not only or _matches(check_id, only)) and not _matches(check_id, skip)
+    return (not only or matches(check_id, only)) and not matches(check_id, skip)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -38,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     fix.add_argument("--plan", action="store_true", help="required: list steps without running")
     explain = sub.add_parser("explain", help="explain what a check id means")
     explain.add_argument("check_id")
+    sub.add_parser("init", help="print a starter .devready.json (does not write it)")
     sub.add_parser("mcp", help="run as an MCP server over stdio")
     for p in (check, fix):
         p.add_argument("--project", default=".", help="directory whose version pins to compare")
@@ -53,6 +50,12 @@ def main(argv: list[str] | None = None) -> int:
         from devready.mcp_server import serve
 
         return serve()
+
+    if args.command == "init":
+        from devready.checks.config import TEMPLATE
+
+        print(TEMPLATE)
+        return EXIT_OK
 
     if args.command == "explain":
         from devready.explain import EXPLANATIONS

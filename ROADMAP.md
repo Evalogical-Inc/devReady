@@ -41,8 +41,8 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [x] `devready fix --plan`: prints each `fail`/`warn` with its suggestion. Never runs anything. (Suggestions are prose today, not exact commands.)
 - [x] `--format sarif` and `junit` (SARIF has no file locations yet, so GitHub code scanning may not show alerts).
 - [x] `--only` / `--skip` filters by check id or dotted prefix (repeatable).
-- [ ] Optional `.devready.toml` to declare requirements and silence checks (needs a 3.10-safe parser, or limit to JSON).
-- [ ] `devready init` generates that file from what it detects.
+- [x] Optional `.devready.json` (JSON, so no parser dependency): `skip` ids, `require` node/python, required `env` names.
+- [x] `devready init` prints a starter file (does not write it; DevReady stays read-only).
 
 ## 0.4 - Team and CI (in progress)
 
