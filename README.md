@@ -181,7 +181,8 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 - [x] Docker CLI + daemon reachability, `.tool-versions`, `.env` key-name diff, disk space, git identity, `devready explain`
 - [x] Port-in-use checks, more ecosystems (Go, Rust, Java, Ruby, .NET, pnpm/yarn/bun), JUnit/SARIF output, `fix --plan`, GitHub Action
-- [ ] Config file, shared baseline (see [ROADMAP.md](ROADMAP.md))
+- [x] `.devready.json` config, `--baseline` snapshots
+- [ ] Platform-specific checks (see [ROADMAP.md](ROADMAP.md))
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.
