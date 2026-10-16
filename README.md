@@ -169,7 +169,7 @@ args = ["--from", "devready-cli", "devready", "mcp"]
 - Environment variable values are never read into output. Nothing leaves your machine.
 - A passing report does **not** guarantee your project builds.
 
-See [SECURITY.md](SECURITY.md) to report a vulnerability.
+See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](docs/versioning.md) for what stays stable, [docs/checks.md](docs/checks.md) for every check, and [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Limitations (alpha)
 

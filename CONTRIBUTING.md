@@ -23,7 +23,13 @@ ruff check . && ruff format --check . && pytest
 ## Adding a check
 
 Return a `Result` (`src/devready/models.py`). Run external commands with a fixed argument list and
-a timeout, and report only parsed values. Add the check to the README only once it works.
+a timeout, and report only parsed values. Then:
+
+1. Pick a stable id matching `^[a-z_]+(\.[a-z_]+)+$` (no digits or hyphens). Ids are public API.
+2. Add an entry in `src/devready/explain.py` and a row in `docs/checks.md` (a test enforces both).
+3. Register it in `src/devready/runner.py`; make it silent when the project does not use the thing.
+4. Test with injected fakes, plus a hostile-content case if it reads project files.
+5. Mention it in `CHANGELOG.md`. See [docs/versioning.md](docs/versioning.md) for what may change.
 
 ## Conduct and security
 

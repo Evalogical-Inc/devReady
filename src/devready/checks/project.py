@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 from devready.models import Result, Status
-from devready.versions import SAFE_SPEC, Version, parse_version, satisfies
+from devready.versions import Version, parse_version, satisfies
 
 MAX_BYTES = 1_000_000
 
@@ -25,7 +25,8 @@ def _read(path: Path) -> str | None:
 def _compare(
     check_id: str, title: str, source: str, spec: str, installed: Version | None, miss: Status
 ) -> Result:
-    shown = spec if SAFE_SPEC.match(spec) else "(unrecognized)"
+    # Echo only specs the matcher fully parses: plain words can pass SAFE_SPEC but are not versions.
+    shown = spec if satisfies((0, 0, 0), spec) is not None else "(unrecognized)"
     if installed is None:
         return Result(check_id, title, Status.SKIP, f"{source} wants {shown}; tool not found")
     ok = satisfies(installed, spec)

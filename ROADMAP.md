@@ -58,9 +58,10 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 
 ## 1.0 - Stabilize
 
-- [ ] Freeze JSON schema (`docs/schema.json`) with a versioning policy.
-- [ ] Test matrix on Windows/macOS/Linux x Python 3.10-3.13.
-- [ ] Docs pass: check catalog, plugin/MCP setup, contributing guide for adding a check.
+- [x] Schema frozen at v1 with a policy: `docs/versioning.md`, enforced by `tests/unit/test_stability.py` (fields, statuses, id pattern, catalog in sync).
+- [x] CI matrix: Ubuntu/Windows/macOS x Python 3.10, 3.11, 3.12, 3.13 (edited, not yet run on GitHub).
+- [x] Docs: `docs/checks.md`, `architecture.md`, `security.md`, `versioning.md`, and an "Adding a check" guide in CONTRIBUTING. Plugin/MCP setup already in `docs/agents.md`.
+- [ ] Bump to 1.0.0 once the patch release below is out and CI is green on the full matrix.
 
 ## Opt-in only (needs explicit design review)
 
