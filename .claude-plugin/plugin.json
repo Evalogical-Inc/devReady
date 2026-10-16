@@ -1,6 +1,6 @@
 {
   "name": "devready",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "homepage": "https://devready-ten.vercel.app/",
   "description": "Read-only environment preflight: compares a project's declared Node/Python versions with what is installed.",
   "author": { "name": "DevReady contributors" },

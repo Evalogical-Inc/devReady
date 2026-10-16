@@ -7,4 +7,4 @@ Relevant concerns include: leaking environment values or file contents, executin
 content, following symlinks outside the inspected directory, and output that could inject
 instructions into an AI agent consuming the JSON.
 
-This is an early prototype maintained on a best-effort basis; no response-time guarantee is made.
+This project is maintained on a best-effort basis; no response-time guarantee is made.

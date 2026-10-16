@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "devready-cli"
-version = "0.3.0"
+version = "1.0.0"
 description = "A local-first, read-only CLI that checks a project's environment requirements against what is installed."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "Evalogical Inc" }]
 keywords = ["developer-tools", "cli", "doctor", "environment", "preflight", "mcp", "claude-code", "codex", "ai-agents", "nvmrc", "onboarding"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",

@@ -13,7 +13,7 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)
-![Status: alpha](https://img.shields.io/badge/status-alpha-orange)
+![Status: stable](https://img.shields.io/badge/status-stable-green)
 
 </div>
 
@@ -171,7 +171,7 @@ args = ["--from", "devready-cli", "devready", "mcp"]
 
 See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](docs/versioning.md) for what stays stable, [docs/checks.md](docs/checks.md) for every check, and [SECURITY.md](SECURITY.md) to report a vulnerability.
 
-## Limitations (alpha)
+## Limitations
 
 - Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), free disk space, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.

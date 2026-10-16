@@ -2,7 +2,7 @@
 
 Principles (unchanged): read-only, local-first, zero runtime dependencies, Python >= 3.10, never print env values or raw command output.
 
-## Where we are (0.3.0)
+## Where we are (1.0.0)
 
 - Tools: Git, Node, npm, Python. Docker, Go, Ruby, Java, Rust, .NET, pnpm, Yarn, Bun only when the project declares them (details in the sections below).
 - Pins compared: `.nvmrc`, `.node-version`, `.python-version`, `package.json` engines.node, `pyproject.toml` requires-python, `.tool-versions` (node/python only).
@@ -61,7 +61,7 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [x] Schema frozen at v1 with a policy: `docs/versioning.md`, enforced by `tests/unit/test_stability.py` (fields, statuses, id pattern, catalog in sync).
 - [x] CI matrix: Ubuntu/Windows/macOS x Python 3.10, 3.11, 3.12, 3.13 (edited, not yet run on GitHub).
 - [x] Docs: `docs/checks.md`, `architecture.md`, `security.md`, `versioning.md`, and an "Adding a check" guide in CONTRIBUTING. Plugin/MCP setup already in `docs/agents.md`.
-- [ ] Bump to 1.0.0 once the patch release below is out and CI is green on the full matrix.
+- [x] 1.0.0: schema v1, check ids, exit codes and `.devready.json` keys are stable per `docs/versioning.md`.
 
 ## Opt-in only (needs explicit design review)
 

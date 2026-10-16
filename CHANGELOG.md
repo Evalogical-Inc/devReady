@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 - 2026-10-16
+- First stable release. No behaviour changes since 0.3.0.
+- From here the JSON schema (v1), check ids, exit codes and `.devready.json` keys follow the stability rules in `docs/versioning.md`; breaking any of them needs 2.0.
+
 ## 0.3.0 - 2026-10-16
 - Text output now shows the suggestion under each non-passing result (community PR #6, fixes #2).
 - Fix: a pin file with short hostile text (e.g. `.nvmrc`, `rust-toolchain.toml`, `global.json`, `.tool-versions`) was echoed in the summary when the matching tool was not installed. Only specs the matcher fully parses are now shown. Affects 0.2.0 and earlier.
