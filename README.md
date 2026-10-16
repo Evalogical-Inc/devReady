@@ -178,6 +178,10 @@ PRs welcome, especially new read-only checks and platform fixes. Start with [CON
 ruff check . && pytest
 ```
 
+## About Evalogical
+
+DevReady is built and maintained by [Evalogical](https://evalogical.com/), a software company offering AI-enabled product engineering, custom software and IT services. Need help with a product or an engineering team? [Talk to us](https://evalogical.com/contactus).
+
 ## License
 
 [MIT](LICENSE) © Evalogical Inc
