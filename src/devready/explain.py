@@ -31,4 +31,13 @@ EXPLANATIONS = {
     "project.rust.tool_versions": ".tool-versions (asdf/mise) pins Rust for this project.",
     "project.dotnet.global": "global.json sdk.version pins the .NET SDK for this project.",
     "project.dotnet.tool_versions": ".tool-versions (asdf/mise) pins .NET for this project.",
+    "pnpm.version": "pnpm package manager; checked only when package.json packageManager names pnpm.",
+    "yarn.version": "Yarn package manager; checked only when package.json packageManager names yarn.",
+    "bun.version": "Bun runtime and package manager; checked only when package.json packageManager names bun.",
+    "project.pnpm.pin": "package.json packageManager pins the pnpm version (corepack enable can install it).",
+    "project.yarn.pin": "package.json packageManager pins the Yarn version (corepack enable can install it).",
+    "project.bun.pin": "package.json packageManager pins the Bun version.",
+    "project.pnpm.tool_versions": ".tool-versions (asdf/mise) pins pnpm for this project.",
+    "project.yarn.tool_versions": ".tool-versions (asdf/mise) pins Yarn for this project.",
+    "project.bun.tool_versions": ".tool-versions (asdf/mise) pins Bun for this project.",
 }

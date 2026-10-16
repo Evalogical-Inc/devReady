@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- pnpm, Yarn and Bun checks when `package.json` `packageManager` names them.
 - Go, Ruby, Java, Rust and .NET checks, run only when the project pins them (`go.mod`, `.ruby-version`, `.java-version`, `rust-toolchain[.toml]`, `global.json`, `.tool-versions`).
 
 ## 0.0.4 - 2026-10-16

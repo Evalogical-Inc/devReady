@@ -61,3 +61,12 @@ def test_ids_have_explanations(tmp_path):
         (tmp_path / f).write_text(t)
     for r in check_runtimes(tmp_path, fake({})):
         assert r.check_id in EXPLANATIONS, r.check_id
+
+
+def test_package_manager_pin(tmp_path):
+    pkg = {"packageManager": "pnpm@9.1.0+sha256.abc"}
+    (tmp_path / "package.json").write_text(json.dumps(pkg))
+    r = run(tmp_path, {"pnpm": "9.1.0", "yarn": "1.22.0"})
+    assert r["project.pnpm.pin"].status is Status.PASS
+    assert "project.yarn.pin" not in r  # package.json names pnpm only
+    assert run(tmp_path, {"pnpm": "8.0.0"})["project.pnpm.pin"].status is Status.WARN

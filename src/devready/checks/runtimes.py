@@ -1,4 +1,4 @@
-"""Go, Ruby, Java, Rust and .NET: checked only when the project declares a pin for them.
+"""Go, Ruby, Java, Rust, .NET, pnpm, Yarn, Bun: checked only when the project pins them.
 
 Same read-only rules as project.py. Only digits/validated specs ever reach the report.
 """
@@ -39,6 +39,22 @@ def _global_json(text: str) -> str | None:
     return spec if isinstance(spec, str) else None
 
 
+def _pkg_manager(name: str) -> Callable[[str], str | None]:
+    def extract(text: str) -> str | None:
+        try:
+            value = json.loads(text).get("packageManager")
+        except (ValueError, AttributeError):
+            return None
+        m = (
+            re.fullmatch(rf"{name}@(\d+(?:\.\d+){{0,2}})(?:\+.*)?", value)
+            if isinstance(value, str)
+            else None
+        )
+        return m.group(1) if m else None
+
+    return extract
+
+
 # key -> (title, exe, version args, docs, .tool-versions name, [(id, file, extractor, miss)])
 RUNTIMES: dict[str, tuple] = {
     "go": ("Go", "go", ("version",), "https://go.dev/doc/install", "golang",
@@ -52,6 +68,13 @@ RUNTIMES: dict[str, tuple] = {
               ("project.rust.toolchain", "rust-toolchain", _rust, Status.WARN)]),
     "dotnet": ("dotnet", "dotnet", ("--version",), "https://dotnet.microsoft.com/download",
                "dotnet", [("project.dotnet.global", "global.json", _global_json, Status.WARN)]),
+    # packageManager in package.json pins one manager, e.g. "pnpm@9.1.0"
+    "pnpm": ("pnpm", "pnpm", ("--version",), "https://pnpm.io/installation", "pnpm",
+             [("project.pnpm.pin", "package.json", _pkg_manager("pnpm"), Status.WARN)]),
+    "yarn": ("Yarn", "yarn", ("--version",), "https://yarnpkg.com/getting-started/install", "yarn",
+             [("project.yarn.pin", "package.json", _pkg_manager("yarn"), Status.WARN)]),
+    "bun": ("Bun", "bun", ("--version",), "https://bun.sh/docs/installation", "bun",
+            [("project.bun.pin", "package.json", _pkg_manager("bun"), Status.WARN)]),
 }  # fmt: skip
 
 

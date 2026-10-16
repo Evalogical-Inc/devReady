@@ -22,7 +22,8 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 
 - [x] Go (`go.mod`), Ruby (`.ruby-version`), Java (`.java-version`), Rust (`rust-toolchain[.toml]`), .NET (`global.json`), plus their `.tool-versions` lines. Checked only when the project declares them, so no noise on other projects. (`checks/runtimes.py`)
 - [x] `explain` entries and tests for every new id.
-- [ ] pnpm/yarn/bun (`packageManager` field), `uv`/`pip`.
+- [x] pnpm/yarn/bun via the `packageManager` field in `package.json`.
+- [ ] `uv`/`pip` (no pin file to compare against yet).
 - [ ] Table-drive the existing Node/Python pins in `project.py` the same way.
 - [ ] Add `pom.xml` / `build.gradle` Java targets, `Gemfile` ruby version.
 - [ ] Fixture-based integration tests with real tools on CI.
