@@ -34,8 +34,9 @@ def check_tool(
             docs,
         ), None
     try:
+        # 15s: cold Windows .cmd shims (yarn) exceeded 5s on CI
         proc = subprocess.run(
-            [path, *args], capture_output=True, text=True, timeout=5, errors="replace"
+            [path, *args], capture_output=True, text=True, timeout=15, errors="replace"
         )
     except (subprocess.TimeoutExpired, OSError):
         return Result(check_id, title, Status.ERROR, "Could not run version command"), None
