@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "devready"
+name = "devready-cli"
 version = "0.0.1"
 description = "A local-first, read-only CLI that checks a project's environment requirements against what is installed."
 readme = "README.md"
