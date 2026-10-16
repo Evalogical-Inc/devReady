@@ -36,11 +36,11 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [x] `.env` hygiene: warn if `.env` is not gitignored or is tracked.
 - [ ] Docker: compose file validity, image platform mismatch (arm64 vs amd64).
 
-## 0.3 - Actionable output
+## 0.3 - Actionable output (in progress)
 
-- [ ] `devready fix --plan`: print the commands that would resolve each `fail`/`warn`. Never run them.
-- [ ] `--format sarif` and `junit` for CI annotations.
-- [ ] `--only` / `--skip <check_id>` filters.
+- [x] `devready fix --plan`: prints each `fail`/`warn` with its suggestion. Never runs anything. (Suggestions are prose today, not exact commands.)
+- [x] `--format sarif` and `junit` (SARIF has no file locations yet, so GitHub code scanning may not show alerts).
+- [x] `--only` / `--skip` filters by check id or dotted prefix (repeatable).
 - [ ] Optional `.devready.toml` to declare requirements and silence checks (needs a 3.10-safe parser, or limit to JSON).
 - [ ] `devready init` generates that file from what it detects.
 

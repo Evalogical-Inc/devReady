@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from devready import __version__
+from devready.formats import fix_plan, junit, sarif
 from devready.models import Result, Status
 from devready.runner import report, run_checks
 
@@ -19,16 +20,29 @@ def _text(results: list[Result]) -> str:
     return "\n".join(lines)
 
 
+def _matches(check_id: str, ids: list[str]) -> bool:
+    return any(check_id == i or check_id.startswith(i + ".") for i in ids)
+
+
+def _selected(check_id: str, only: list[str], skip: list[str]) -> bool:
+    return (not only or _matches(check_id, only)) and not _matches(check_id, skip)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="devready", description=__doc__)
     parser.add_argument("--version", action="version", version=f"devready {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help="run read-only environment checks")
-    check.add_argument("--format", choices=["text", "json"], default="text")
+    check.add_argument("--format", choices=["text", "json", "junit", "sarif"], default="text")
+    fix = sub.add_parser("fix", help="print suggested fixes (never runs them)")
+    fix.add_argument("--plan", action="store_true", help="required: list steps without running")
     explain = sub.add_parser("explain", help="explain what a check id means")
     explain.add_argument("check_id")
     sub.add_parser("mcp", help="run as an MCP server over stdio")
-    check.add_argument("--project", default=".", help="directory whose version pins to compare")
+    for p in (check, fix):
+        p.add_argument("--project", default=".", help="directory whose version pins to compare")
+        p.add_argument("--only", action="append", default=[], metavar="ID", help="check id/prefix")
+        p.add_argument("--skip", action="append", default=[], metavar="ID", help="check id/prefix")
 
     try:
         args = parser.parse_args(argv)
@@ -50,6 +64,13 @@ def main(argv: list[str] | None = None) -> int:
         print(text)
         return EXIT_OK
 
+    if args.command == "fix" and not args.plan:
+        print(
+            "devready: fix only supports --plan (DevReady never changes your system)",
+            file=sys.stderr,
+        )
+        return EXIT_USAGE
+
     root = Path(args.project)
     if not root.is_dir():
         print(f"devready: not a directory: {args.project}", file=sys.stderr)
@@ -60,8 +81,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"devready: internal error ({type(e).__name__})", file=sys.stderr)
         return EXIT_INTERNAL
 
+    results = [r for r in results if _selected(r.check_id, args.only, args.skip)]
+
+    if args.command == "fix":
+        print(fix_plan(results))
+        return EXIT_OK
     if args.format == "json":
         print(json.dumps(report(results), indent=2))
+    elif args.format in ("junit", "sarif"):
+        print(junit(results) if args.format == "junit" else sarif(results))
     else:
         print(_text(results))
     return EXIT_FAILED if any(r.status is Status.FAIL for r in results) else EXIT_OK

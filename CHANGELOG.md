@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- `--format junit|sarif`, `--only`/`--skip` filters, and `devready fix --plan` (suggestions only).
 - Project health: `.env` not git-ignored, `node_modules` missing/older than lockfile, declared ports already in use.
 - pnpm, Yarn and Bun checks when `package.json` `packageManager` names them.
 - Go, Ruby, Java, Rust and .NET checks, run only when the project pins them (`go.mod`, `.ruby-version`, `.java-version`, `rust-toolchain[.toml]`, `global.json`, `.tool-versions`).
