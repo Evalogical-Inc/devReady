@@ -49,6 +49,8 @@ def test_check_text_failing_fixture(capsys, tmp_path):
     out = capsys.readouterr().out
     assert "[FAIL ] Node engines" in out
     assert "    Switch versions with your version manager" in out
+
+
 def test_python_dash_m_entry_point():
     import subprocess
     import sys
