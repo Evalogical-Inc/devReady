@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DevReady report",
+  "type": "object",
+  "required": ["schema_version", "results"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "title", "status", "summary", "suggestion", "docs_url"],
+        "additionalProperties": false,
+        "properties": {
+          "check_id": { "type": "string", "pattern": "^[a-z]+(\\.[a-z]+)+$" },
+          "title": { "type": "string" },
+          "status": { "enum": ["pass", "warn", "fail", "skip", "error"] },
+          "summary": { "type": "string" },
+          "suggestion": { "type": "string" },
+          "docs_url": { "type": "string" }
+        }
+      }
+    }
+  }
+}

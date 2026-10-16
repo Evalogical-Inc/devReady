@@ -1,0 +1,10 @@
+name: Feature request
+description: Suggest a new check or option (must stay read-only)
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Setup problem it would catch }
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes: { label: Proposed behavior }

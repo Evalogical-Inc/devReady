@@ -1,0 +1,12 @@
+{
+  "name": "devready",
+  "description": "Read-only environment preflight for coding agents.",
+  "owner": { "name": "DevReady contributors" },
+  "plugins": [
+    {
+      "name": "devready",
+      "source": "./",
+      "description": "Read-only environment preflight for coding agents."
+    }
+  ]
+}

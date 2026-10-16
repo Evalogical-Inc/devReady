@@ -1,0 +1,14 @@
+name: Bug report
+description: A check gave a wrong or confusing result
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened, description: "Expected vs actual. Do not paste secrets or env values." }
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes: { label: OS and Python version }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: Command and output (devready check --format json) }
