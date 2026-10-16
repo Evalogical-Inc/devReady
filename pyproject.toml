@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "devready-cli"
-version = "0.0.2"
+version = "0.0.3"
 description = "A local-first, read-only CLI that checks a project's environment requirements against what is installed."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,7 +26,8 @@ dependencies = []
 dev = ["pytest>=8", "ruff>=0.6", "jsonschema>=4"]
 
 [project.urls]
-Homepage = "https://github.com/Evalogical-Inc/devReady"
+Homepage = "https://devready-ten.vercel.app/"
+Repository = "https://github.com/Evalogical-Inc/devReady"
 Issues = "https://github.com/Evalogical-Inc/devReady/issues"
 
 [project.scripts]
