@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4 - 2026-10-16
+- `python -m devready` entry point.
+- Skill, `/devready:doctor` and `AGENTS.md` now fall back to `python -m devready`, `uvx`, then `pipx run`, and tell the user how to install instead of failing.
+- Docs: requirements (`uv` for the plugin MCP server), no-`uv` MCP config and a troubleshooting table.
+
 ## 0.0.3 - 2026-10-16
 - Add project website (https://devready-ten.vercel.app/) to package metadata.
 

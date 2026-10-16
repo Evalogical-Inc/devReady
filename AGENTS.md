@@ -1,6 +1,6 @@
 # Agent instructions
 
-Before running installs, builds or tests in a project, or when setup errors mention versions or missing tools, run `devready check --format json` (or `uvx --from devready-cli devready check --format json`) and read the result.
+Before running installs, builds or tests in a project, or when setup errors mention versions or missing tools, run `devready check --format json` and read the result. If `devready` is not on PATH, try `python -m devready check --format json`, then `uvx --from devready-cli devready check --format json`; if neither works, tell the user (`pipx install devready-cli`) instead of installing it yourself.
 
 - `fail` means a declared requirement is unmet: tell the user and suggest switching versions; do not work around it.
 - `skip`/`error` mean "not evaluated", not "ok".

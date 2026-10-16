@@ -23,3 +23,13 @@ def test_bad_usage_exit_code():
 def test_version(capsys):
     assert main(["--version"]) == 0
     assert "devready" in capsys.readouterr().out
+
+
+def test_python_dash_m_entry_point():
+    import subprocess
+    import sys
+
+    p = subprocess.run(
+        [sys.executable, "-m", "devready", "--version"], capture_output=True, text=True
+    )
+    assert p.returncode == 0 and "devready" in p.stdout

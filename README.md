@@ -128,7 +128,7 @@ devready --version
 
 DevReady ships the same engine three ways, so your agent can verify the environment *before* it installs, builds or tests.
 
-**Claude Code** - plugin with a skill, a `/devready:doctor` command and an MCP server:
+**Claude Code** - plugin with a skill, a `/devready:doctor` command and an MCP server (the MCP server needs [`uv`](https://docs.astral.sh/uv/); the rest works without it once `devready-cli` is installed):
 
 ```text
 /plugin marketplace add Evalogical-Inc/devReady

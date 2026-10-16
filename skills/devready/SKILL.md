@@ -11,7 +11,13 @@ Run from the project root:
 devready check --format json
 ```
 
-If `devready` is not installed, use `uvx --from devready-cli devready check --format json` or `pipx run --spec devready-cli devready check --format json`. Do not install anything without asking the user.
+If `devready` is not found, try these in order and use the first that works:
+
+1. `python -m devready check --format json` (or `python3 -m ...`), if the package is installed for that Python.
+2. `uvx --from devready-cli devready check --format json`, if `uv` is installed.
+3. `pipx run --spec devready-cli devready check --format json`, if `pipx` is installed.
+
+If none work, tell the user and offer `pipx install devready-cli` (or `pip install --user devready-cli`). Do not install anything without asking.
 
 ## Reading the result
 
