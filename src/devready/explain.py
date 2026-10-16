@@ -40,4 +40,7 @@ EXPLANATIONS = {
     "project.pnpm.tool_versions": ".tool-versions (asdf/mise) pins pnpm for this project.",
     "project.yarn.tool_versions": ".tool-versions (asdf/mise) pins Yarn for this project.",
     "project.bun.tool_versions": ".tool-versions (asdf/mise) pins Bun for this project.",
+    "project.env.ignored": "Warns when .env exists but git would commit it (not ignored, or already tracked). Values are never shown.",
+    "project.node.modules": "Checked when package.json lists dependencies: node_modules must exist and not be older than a lockfile.",
+    "project.ports.free": "Ports declared in compose files (host side) or *PORT= lines in .env.example, tested by connecting to localhost. A busy port may be this project already running.",
 }

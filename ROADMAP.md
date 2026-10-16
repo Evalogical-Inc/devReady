@@ -28,11 +28,12 @@ Principles (unchanged): read-only, local-first, zero runtime dependencies, Pytho
 - [ ] Add `pom.xml` / `build.gradle` Java targets, `Gemfile` ruby version.
 - [ ] Fixture-based integration tests with real tools on CI.
 
-## 0.2 - Project health
+## 0.2 - Project health (in progress)
 
-- [ ] Dependency drift: lockfile vs installed (`node_modules`, venv present and matching).
-- [ ] Port conflicts for ports declared in compose / `.env.example` / `package.json` scripts.
-- [ ] `.env` hygiene: warn if `.env` is not gitignored (names only).
+- [x] Node dependency drift: `node_modules` missing or older than a lockfile (directory mtime).
+- [ ] Python drift (venv present, `pip check`); skipped for now since conda/global envs make "no venv" noisy.
+- [x] Port conflicts for ports declared in compose files and `*PORT=` in `.env.example` (`package.json` scripts not parsed).
+- [x] `.env` hygiene: warn if `.env` is not gitignored or is tracked.
 - [ ] Docker: compose file validity, image platform mismatch (arm64 vs amd64).
 
 ## 0.3 - Actionable output
