@@ -19,7 +19,9 @@ TOOLS = [
 ]
 
 
-def check_tool(check_id: str, title: str, exe: str, docs: str) -> tuple[Result, str | None]:
+def check_tool(
+    check_id: str, title: str, exe: str, docs: str, args: tuple[str, ...] = ("--version",)
+) -> tuple[Result, str | None]:
     """Returns (result, parsed version or None). Raw command output is never reported."""
     path = shutil.which(exe)
     if not path:
@@ -33,11 +35,12 @@ def check_tool(check_id: str, title: str, exe: str, docs: str) -> tuple[Result, 
         ), None
     try:
         proc = subprocess.run(
-            [path, "--version"], capture_output=True, text=True, timeout=5, errors="replace"
+            [path, *args], capture_output=True, text=True, timeout=5, errors="replace"
         )
     except (subprocess.TimeoutExpired, OSError):
         return Result(check_id, title, Status.ERROR, "Could not run version command"), None
-    m = re.search(r"\d+(?:\.\d+)+", proc.stdout[:200]) if proc.returncode == 0 else None
+    out = (proc.stdout or proc.stderr)[:200]  # java -version prints to stderr
+    m = re.search(r"\d+(?:\.\d+)+", out) if proc.returncode == 0 else None
     if not m:
         return Result(check_id, title, Status.ERROR, "Version output not recognized"), None
     return Result(check_id, title, Status.PASS, f"{m.group()} found"), m.group()

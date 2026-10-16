@@ -9,6 +9,7 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 
 [![CI](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml/badge.svg)](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/devready-cli)](https://pypi.org/project/devready-cli/)
+[![Website](https://img.shields.io/badge/website-devready--ten.vercel.app-ff6a35)](https://devready-ten.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)
@@ -86,6 +87,12 @@ devready check                    # human-readable report for the current direct
 devready check --project ../app   # inspect another project's pins
 devready check --format json      # machine-readable (see docs/schema.json)
 devready explain docker.daemon    # what a check means and how to fix it
+devready check --format junit     # or sarif, for CI
+devready check --only project --skip project.ports   # filter by id or prefix
+devready fix --plan               # suggested steps only; never runs them
+devready check --format json > baseline.json   # save a snapshot (commit it for a team baseline)
+devready check --baseline baseline.json          # show only what changed; fail only on new/worse failures
+devready init > .devready.json    # optional config: skip ids, require node/python, required env names
 devready mcp                      # run as an MCP server over stdio
 devready --version
 ```
@@ -123,11 +130,21 @@ devready --version
 }
 ```
 
+## Use it in CI (GitHub Actions)
+
+```yaml
+- uses: Evalogical-Inc/devReady@main   # pin a release tag once published
+  with:
+    skip: project.ports                  # optional; also: only, format, project, version
+```
+
+The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
+
 ## Use it with AI coding agents
 
 DevReady ships the same engine three ways, so your agent can verify the environment *before* it installs, builds or tests.
 
-**Claude Code** - plugin with a skill, a `/devready:doctor` command and an MCP server:
+**Claude Code** - plugin with a skill, a `/devready:doctor` command and an MCP server (the MCP server needs [`uv`](https://docs.astral.sh/uv/); the rest works without it once `devready-cli` is installed):
 
 ```text
 /plugin marketplace add Evalogical-Inc/devReady
@@ -156,15 +173,16 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Limitations (alpha)
 
-- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), and free disk space.
+- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), free disk space, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
 - The Python version compared is the interpreter running DevReady, not necessarily your project's virtualenv.
 
 ## Roadmap
 
 - [x] Docker CLI + daemon reachability, `.tool-versions`, `.env` key-name diff, disk space, git identity, `devready explain`
-- [ ] Port-in-use checks (ports read from compose files)
-- [ ] More ecosystems (Go, Rust, Java, Ruby pins)
+- [x] Port-in-use checks, more ecosystems (Go, Rust, Java, Ruby, .NET, pnpm/yarn/bun), JUnit/SARIF output, `fix --plan`, GitHub Action
+- [x] `.devready.json` config, `--baseline` snapshots
+- [ ] Platform-specific checks (see [ROADMAP.md](ROADMAP.md))
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.
@@ -176,6 +194,10 @@ PRs welcome, especially new read-only checks and platform fixes. Start with [CON
 ```bash
 ruff check . && pytest
 ```
+
+## About Evalogical
+
+DevReady is built and maintained by [Evalogical](https://evalogical.com/), a software company offering AI-enabled product engineering, custom software and IT services. Need help with a product or an engineering team? [Talk to us](https://evalogical.com/contactus).
 
 ## License
 
