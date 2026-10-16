@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Go, Ruby, Java, Rust and .NET checks, run only when the project pins them (`go.mod`, `.ruby-version`, `.java-version`, `rust-toolchain[.toml]`, `global.json`, `.tool-versions`).
+
 ## 0.0.4 - 2026-10-16
 - `python -m devready` entry point.
 - Skill, `/devready:doctor` and `AGENTS.md` now fall back to `python -m devready`, `uvx`, then `pipx run`, and tell the user how to install instead of failing.
