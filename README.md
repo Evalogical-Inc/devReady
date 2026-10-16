@@ -170,15 +170,15 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Limitations (alpha)
 
-- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), and free disk space.
+- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), free disk space, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
 - The Python version compared is the interpreter running DevReady, not necessarily your project's virtualenv.
 
 ## Roadmap
 
 - [x] Docker CLI + daemon reachability, `.tool-versions`, `.env` key-name diff, disk space, git identity, `devready explain`
-- [ ] Port-in-use checks (ports read from compose files)
-- [ ] More ecosystems (Go, Rust, Java, Ruby pins)
+- [x] Port-in-use checks, more ecosystems (Go, Rust, Java, Ruby, .NET, pnpm/yarn/bun), JUnit/SARIF output, `fix --plan`, GitHub Action
+- [ ] Config file, shared baseline (see [ROADMAP.md](ROADMAP.md))
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - 2026-10-16
 - GitHub Action (`action.yml`) wrapping `devready check`.
 - `--format junit|sarif`, `--only`/`--skip` filters, and `devready fix --plan` (suggestions only).
 - Project health: `.env` not git-ignored, `node_modules` missing/older than lockfile, declared ports already in use.

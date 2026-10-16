@@ -2,9 +2,9 @@
 
 Principles (unchanged): read-only, local-first, zero runtime dependencies, Python >= 3.10, never print env values or raw command output.
 
-## Where we are (0.0.4)
+## Where we are (0.1.0)
 
-- Tools: Git, Node, npm, Python. Docker CLI/daemon only when a Docker/compose file exists.
+- Tools: Git, Node, npm, Python. Docker, Go, Ruby, Java, Rust, .NET, pnpm, Yarn, Bun only when the project declares them (details in the sections below).
 - Pins compared: `.nvmrc`, `.node-version`, `.python-version`, `package.json` engines.node, `pyproject.toml` requires-python, `.tool-versions` (node/python only).
 - Also: `.env.example` vs `.env` key names, git identity presence, free disk space.
 - Interfaces: `check` (text/JSON, exit 1 on `fail`), `explain`, `mcp`, Claude Code plugin, `AGENTS.md`.
