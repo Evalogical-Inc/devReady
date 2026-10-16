@@ -70,3 +70,19 @@ def test_package_manager_pin(tmp_path):
     assert r["project.pnpm.pin"].status is Status.PASS
     assert "project.yarn.pin" not in r  # package.json names pnpm only
     assert run(tmp_path, {"pnpm": "8.0.0"})["project.pnpm.pin"].status is Status.WARN
+
+
+def test_failing_version_command_is_not_reported_as_unrecognized_output(monkeypatch):
+    from types import SimpleNamespace
+
+    from devready.checks import tools
+
+    monkeypatch.setattr(tools.shutil, "which", lambda exe: exe)
+    for rc, out, want in ((1, "usage: ...", "failed"), (0, "no digits here", "not recognized")):
+        monkeypatch.setattr(
+            tools.subprocess,
+            "run",
+            lambda *a, rc=rc, out=out, **k: SimpleNamespace(returncode=rc, stdout=out, stderr=""),
+        )
+        result, version = tools.check_tool("x.version", "X", "x", "docs")
+        assert result.status is Status.ERROR and want in result.summary and version is None

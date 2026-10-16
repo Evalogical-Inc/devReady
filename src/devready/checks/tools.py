@@ -41,6 +41,10 @@ def check_tool(
         return Result(check_id, title, Status.ERROR, "Could not run version command"), None
     out = (proc.stdout or proc.stderr)[:200]  # java -version prints to stderr
     m = re.search(r"\d+(?:\.\d+)+", out) if proc.returncode == 0 else None
+    if proc.returncode != 0:  # e.g. dotnet with only a runtime installed (no SDK)
+        return Result(
+            check_id, title, Status.ERROR, "Version command failed (is it fully installed?)"
+        ), None
     if not m:
         return Result(check_id, title, Status.ERROR, "Version output not recognized"), None
     return Result(check_id, title, Status.PASS, f"{m.group()} found"), m.group()

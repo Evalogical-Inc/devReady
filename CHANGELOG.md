@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- A tool whose version command exits with an error (for example `dotnet` with only a runtime installed) now reports "Version command failed" instead of "Version output not recognized".
+
 ## 1.0.0 - 2026-10-16
 - First stable release. No behaviour changes since 0.3.0.
 - From here the JSON schema (v1), check ids, exit codes and `.devready.json` keys follow the stability rules in `docs/versioning.md`; breaking any of them needs 2.0.
