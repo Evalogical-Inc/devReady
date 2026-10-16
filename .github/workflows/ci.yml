@@ -18,3 +18,34 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest
+  action:
+    # Exercises action.yml itself (installs the published devready-cli from PyPI).
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Passing project succeeds (junit output)
+        uses: ./
+        with:
+          project: tests/fixtures/action-pass
+          only: project
+          format: junit
+      - name: Failing project fails the job
+        id: bad
+        uses: ./
+        continue-on-error: true
+        with:
+          project: tests/fixtures/action-fail
+          only: project
+      - name: Expect the failure above
+        shell: bash
+        run: test "${{ steps.bad.outcome }}" = "failure"
+      - name: Known failure in baseline does not fail the job
+        uses: ./
+        with:
+          project: tests/fixtures/action-fail
+          only: project
+          baseline: tests/fixtures/action-fail/baseline.json
