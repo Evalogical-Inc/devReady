@@ -29,7 +29,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 **Quality**
 - [ ] Fixture-based integration tests with real tools on CI (`tests/integration/`, `tests/fixtures/`).
 - [x] GitHub Action runs on Ubuntu/Windows/macOS in CI (pass, fail and baseline fixtures). Not covered: `sarif` and multi-id `only`/`skip`.
-- [ ] Run the macOS/Linux platform checks on real machines. CI covers them with fakes only.
+- [x] macOS/Linux compiler lookup runs for real on GitHub's Ubuntu and macOS runners (`tests/integration/`). Not covered: a machine *without* a toolchain, and Windows warning branches on a locked-down machine.
 
 ## Decided against
 
