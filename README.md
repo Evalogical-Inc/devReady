@@ -19,6 +19,16 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 
 ---
 
+## What is DevReady?
+
+DevReady is a command-line tool that tells you whether your computer is set up to work on a project. Run `devready check` inside a project folder and it:
+
+1. **Reads** the versions the project says it needs (`.nvmrc`, `.python-version`, `package.json` engines, `pyproject.toml` requires-python).
+2. **Compares** them with what is actually installed on your machine (Python, Node.js, npm, Git, and so on).
+3. **Reports** PASS, WARN or FAIL for each item, with what to fix. The exit code is `1` if a requirement is unmet, so it also works in CI.
+
+It only looks. It never installs, changes or deletes anything, makes no network calls and sends no telemetry. Fixing the problem (for example switching Node versions) is up to you.
+
 ## The problem
 
 You clone a repo. `npm install` explodes. The README says "Node 20", your machine has 16, and the error message says nothing useful. Multiply by every new hire, student, CI runner and **AI agent** that burns tokens guessing why a build failed.
