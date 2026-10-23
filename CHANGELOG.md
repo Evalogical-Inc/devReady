@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- The ports check now reads valid port declarations from string-valued `package.json` scripts, alongside Compose and `.env.example` files.
+
 ## 1.1.1 - 2026-10-23
 - `devready-cli` command alias, so `uvx devready-cli check` and `uvx devready-cli mcp` work without `--from`.
 - `server.json` for the MCP Registry (`io.github.Evalogical-Inc/devready`).
