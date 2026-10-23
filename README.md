@@ -9,6 +9,7 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 
 [![CI](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml/badge.svg)](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/devready-cli)](https://pypi.org/project/devready-cli/)
+[![DevReady](https://img.shields.io/badge/DevReady-%E2%9C%93%20ready-2ea44f)](https://github.com/Evalogical-Inc/devReady)
 [![Website](https://img.shields.io/badge/website-devready--ten.vercel.app-ff6a35)](https://devready-ten.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -150,6 +151,16 @@ devready --version
 ```
 
 The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
+
+## Add the badge
+
+Tell contributors your project declares its requirements and can be checked with one command. Paste this into your README:
+
+```markdown
+[![DevReady](https://img.shields.io/badge/DevReady-%E2%9C%93%20ready-2ea44f)](https://github.com/Evalogical-Inc/devReady)
+```
+
+[![DevReady](https://img.shields.io/badge/DevReady-%E2%9C%93%20ready-2ea44f)](https://github.com/Evalogical-Inc/devReady)
 
 ## Use it with AI coding agents
 
