@@ -59,3 +59,28 @@ def test_python_dash_m_entry_point():
         [sys.executable, "-m", "devready", "--version"], capture_output=True, text=True
     )
     assert p.returncode == 0 and "devready" in p.stdout
+
+
+def test_quiet_hides_passes():
+    results = [
+        Result("check.pass", "PassTitle", Status.PASS, "Pass summary"),
+        Result("check.warn", "WarnTitle", Status.WARN, "Warn summary", "Warn suggestion"),
+    ]
+    out = _text(results, quiet=True)
+    assert "PassTitle" not in out
+    assert "[WARN ] WarnTitle    Warn summary" in out and "    Warn suggestion" in out
+    assert "No changes were made" in out
+
+
+def test_check_quiet(capsys, tmp_path):
+    assert main(["check", "--quiet"]) == 0
+    assert "[PASS " not in capsys.readouterr().out
+    (tmp_path / "package.json").write_text(json.dumps({"engines": {"node": ">=999"}}))
+    assert main(["check", "--quiet", "--project", str(tmp_path)]) == 1
+    out = capsys.readouterr().out
+    assert "[FAIL ] Node engines" in out and "[PASS " not in out
+
+
+def test_help_lists_exit_codes(capsys):
+    assert main(["check", "--help"]) == 0
+    assert "exit codes" in capsys.readouterr().out

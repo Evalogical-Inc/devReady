@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- `check --quiet` shows only non-pass results in text output (#3). `devready --help` and `devready check --help` now list the exit codes.
+- Tests: version parsing for Windows, macOS and Debian `git`/`node`/`npm` output, plus empty output, non-zero exit and timeout (#4).
 - A tool whose version command exits with an error (for example `dotnet` with only a runtime installed) now reports "Version command failed" instead of "Version output not recognized".
 - Version commands now get 15 seconds instead of 5, so slow Windows shims (such as `yarn.cmd`) no longer report "Could not run version command".
 

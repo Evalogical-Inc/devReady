@@ -14,9 +14,18 @@ from devready.runner import matches, report, run_checks
 EXIT_OK, EXIT_FAILED, EXIT_USAGE, EXIT_INTERNAL = 0, 1, 2, 3
 
 
-def _text(results: list[Result]) -> str:
+EXIT_CODES = """exit codes (check):
+  0  no blocking failures
+  1  a project requirement is not met
+  2  invalid usage
+  3  internal error"""
+
+
+def _text(results: list[Result], quiet: bool = False) -> str:
     lines = ["DevReady - Environment Check", ""]
     for r in results:
+        if quiet and r.status is Status.PASS:
+            continue
         lines.append(f"[{r.status.value.upper():<5}] {r.title:<12} {r.summary}")
         if r.status is not Status.PASS and r.suggestion:
             lines.append(f"    {r.suggestion}")
@@ -29,13 +38,26 @@ def _selected(check_id: str, only: list[str], skip: list[str]) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="devready", description=__doc__)
+    parser = argparse.ArgumentParser(
+        prog="devready",
+        description=__doc__,
+        epilog=EXIT_CODES,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--version", action="version", version=f"devready {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
-    check = sub.add_parser("check", help="run read-only environment checks")
+    check = sub.add_parser(
+        "check",
+        help="run read-only environment checks",
+        epilog=EXIT_CODES,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     check.add_argument("--format", choices=["text", "json", "junit", "sarif"], default="text")
     check.add_argument(
         "--baseline", metavar="FILE", help="saved --format json report; show only what changed"
+    )
+    check.add_argument(
+        "--quiet", action="store_true", help="text format: show only non-pass results"
     )
     fix = sub.add_parser("fix", help="print suggested fixes (never runs them)")
     fix.add_argument("--plan", action="store_true", help="required: list steps without running")
@@ -111,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.format in ("junit", "sarif"):
         print(junit(results) if args.format == "junit" else sarif(results))
     else:
-        print(_text(results))
+        print(_text(results, args.quiet))
     if regressed is not None:  # with a baseline only a new or worse FAIL breaks the build
         return EXIT_FAILED if regressed else EXIT_OK
     return EXIT_FAILED if any(r.status is Status.FAIL for r in results) else EXIT_OK

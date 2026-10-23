@@ -94,6 +94,7 @@ python -m pip install -e ".[dev]"
 
 ```bash
 devready check                    # human-readable report for the current directory
+devready check --quiet            # only non-pass results (text format)
 devready check --project ../app   # inspect another project's pins
 devready check --format json      # machine-readable (see docs/schema.json)
 devready explain docker.daemon    # what a check means and how to fix it
