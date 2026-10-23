@@ -1,0 +1,26 @@
+{
+  "name": "devready-cli",
+  "version": "1.1.2",
+  "description": "Read-only check that your machine meets a project's declared tool and runtime versions. npm launcher for the devready-cli Python package.",
+  "license": "MIT",
+  "author": "Evalogical Inc",
+  "homepage": "https://devready-ten.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Evalogical-Inc/devReady.git",
+    "directory": "npm"
+  },
+  "bugs": "https://github.com/Evalogical-Inc/devReady/issues",
+  "keywords": ["developer-tools", "cli", "doctor", "environment", "preflight", "mcp", "nvmrc", "onboarding", "ai-agents"],
+  "bin": {
+    "devready": "bin/devready.js",
+    "devready-cli": "bin/devready.js"
+  },
+  "files": ["bin/devready.js", "README.md"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

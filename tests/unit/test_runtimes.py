@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from devready.checks.runtimes import check_runtimes
 from devready.explain import EXPLANATIONS
 from devready.models import Result, Status
@@ -26,6 +28,78 @@ def test_go_mod_minimum(tmp_path):
     (tmp_path / "go.mod").write_text("module x\n\ngo 1.22\n")
     assert run(tmp_path, {"go": "1.21.5"})["project.go.mod"].status is Status.FAIL
     assert run(tmp_path, {"go": "1.22.1"})["project.go.mod"].status is Status.PASS
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        'ruby "3.3.0"',
+        "ruby '3.3'",
+        '  ruby\t"3.3.0"  # interpreter pin\r\n',
+    ],
+)
+def test_gemfile_ruby_literal(tmp_path, declaration):
+    (tmp_path / "Gemfile").write_text('source "https://rubygems.org"\n' + declaration)
+    results = run(tmp_path, {"ruby": "3.3.0"})
+    assert set(results) == {"ruby.version", "project.ruby.gemfile"}
+    assert results["project.ruby.gemfile"].status is Status.PASS
+    assert "Gemfile" in results["project.ruby.gemfile"].summary
+    assert "project.ruby.gemfile" in EXPLANATIONS
+
+
+@pytest.mark.parametrize("installed,expected", [("3.2.2", Status.WARN), (None, Status.SKIP)])
+def test_gemfile_ruby_mismatch_or_missing(tmp_path, installed, expected):
+    (tmp_path / "Gemfile").write_text('ruby "3.3.0"\n')
+    results = run(tmp_path, {"ruby": installed})
+    assert results["project.ruby.gemfile"].status is expected
+    assert "3.3.0" in results["project.ruby.gemfile"].summary
+    assert results["ruby.version"].status is (Status.PASS if installed else Status.WARN)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        'gem "rails", "7.1.0"\n',
+        '# ruby "3.3.0"\n',
+        'ruby ">=3.3"\n',
+        'ruby "3.3.0-preview1"\n',
+        'ruby "3.3.0.1"\n',
+        "ruby \"3.3.0'\n",
+        "ruby \"#{ENV.fetch('RUBY_VERSION')}\"\n",
+        'ruby File.read(".ruby-version")\n',
+        'ruby "3.3.0" + suffix\n',
+        'ruby "3.3.0" if false\n',
+        'ruby "3.3.0", engine: "jruby"\n',
+        'ruby\n"3.3.0"\n',
+        'ruby "٣.٣.٠"\n',
+    ],
+)
+def test_gemfile_without_supported_ruby_literal_does_not_probe(tmp_path, text):
+    (tmp_path / "Gemfile").write_text(text, encoding="utf-8")
+
+    def unexpected_tool(*args):
+        pytest.fail("No supported runtime declaration; no tool should be probed")
+
+    assert check_runtimes(tmp_path, unexpected_tool) == []
+
+
+def test_gemfile_preserves_ruby_pin_precedence_and_tool_versions(tmp_path):
+    (tmp_path / ".ruby-version").write_text("3.2.2\n")
+    (tmp_path / "Gemfile").write_text('ruby "3.3.0"\n')
+    (tmp_path / ".tool-versions").write_text("ruby 3.4.0\n")
+    results = run(tmp_path, {"ruby": "3.2.2"})
+    assert set(results) == {"ruby.version", "project.ruby.pin", "project.ruby.tool_versions"}
+    assert results["project.ruby.pin"].status is Status.PASS
+    assert results["project.ruby.tool_versions"].status is Status.WARN
+
+
+def test_gemfile_and_tool_versions_are_both_checked(tmp_path):
+    (tmp_path / "Gemfile").write_text('ruby "3.3.0"\n')
+    (tmp_path / ".tool-versions").write_text("ruby 3.2.2\n")
+    results = run(tmp_path, {"ruby": "3.3.0"})
+    assert set(results) == {"ruby.version", "project.ruby.gemfile", "project.ruby.tool_versions"}
+    assert results["project.ruby.gemfile"].status is Status.PASS
+    assert results["project.ruby.tool_versions"].status is Status.WARN
 
 
 def test_pins_and_tool_versions(tmp_path):

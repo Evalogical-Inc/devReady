@@ -36,6 +36,7 @@ def test_full_project_validates_and_never_echoes(tmp_path, capsys):
     files = {
         "go.mod": f"module x\ngo 1.21 {HOSTILE}\n",
         ".ruby-version": HOSTILE,
+        "Gemfile": f'ruby "3.3.0" # {HOSTILE}\nraise "{HOSTILE}"\n',
         ".java-version": HOSTILE,
         "rust-toolchain.toml": f'[toolchain]\nchannel = "{HOSTILE}"\n',
         "global.json": json.dumps({"sdk": {"version": HOSTILE}}),
@@ -54,4 +55,5 @@ def test_full_project_validates_and_never_echoes(tmp_path, capsys):
     main(["check", "--format", "json", "--project", str(tmp_path)])
     out = capsys.readouterr().out
     jsonschema.validate(json.loads(out), SCHEMA)
+    assert "project.ruby.gemfile" in out
     assert "evil" not in out and "IGNORE" not in out
