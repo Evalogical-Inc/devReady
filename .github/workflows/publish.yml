@@ -34,6 +34,9 @@ jobs:
       - run: |
           for i in 1 2 3 4 5; do node bin/devready.js --version | grep -qx "devready $(node -p "require('./package.json').version")" && exit 0; sleep 30; done; exit 1
         working-directory: npm
+      # npm page shows the full project README; relative links point at GitHub
+      - run: sed -E 's#\]\(([A-Za-z][^):]*)\)#](https://github.com/Evalogical-Inc/devReady/blob/main/\1)#g' ../README.md > README.md
+        working-directory: npm
       - run: npm publish --provenance --access public
         working-directory: npm
   mcp-registry:
