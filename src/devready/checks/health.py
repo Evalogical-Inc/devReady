@@ -21,7 +21,7 @@ _COMPOSE_PORT = re.compile(r"^\s*-\s*[\"']?(?:[\d.]+:)?(\d{2,5}):\d+", re.M)
 _ENV_PORT = re.compile(r"^\s*(?:export\s+)?[A-Z_]*PORT\s*=\s*[\"']?(\d{2,5})\b", re.M)
 MAX_PORTS = 20
 _SCRIPT_PORT = re.compile(
-    r"(?<![\\w-])(?:--port(?:\\s+|=)|-p\\s+)(\\d{1,5})(?!\\d)|(?<!\\w)PORT=(\\d{1,5})(?!\\d)"
+    r"(?<![\w-])(?:--port(?:\s+|=)|-p\s+)(\d{1,5})(?!\d)|(?<!\w)PORT=(\d{1,5})(?!\d)"
 )
 
 
