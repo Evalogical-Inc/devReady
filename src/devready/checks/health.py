@@ -20,6 +20,9 @@ LOCKFILES = ("package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lockb", "b
 _COMPOSE_PORT = re.compile(r"^\s*-\s*[\"']?(?:[\d.]+:)?(\d{2,5}):\d+", re.M)
 _ENV_PORT = re.compile(r"^\s*(?:export\s+)?[A-Z_]*PORT\s*=\s*[\"']?(\d{2,5})\b", re.M)
 MAX_PORTS = 20
+_SCRIPT_PORT = re.compile(
+    r"(?<![\\w-])(?:--port(?:\\s+|=)|-p\\s+)(\\d{1,5})(?!\\d)|(?<!\\w)PORT=(\\d{1,5})(?!\\d)"
+)
 
 
 def _listening(port: int) -> bool:
@@ -93,6 +96,21 @@ def check_ports(root: Path, in_use: Callable[[int], bool] = _listening) -> list[
             ports.update(int(p) for p in _COMPOSE_PORT.findall(text))
     if (text := _read(root / ".env.example")) is not None:
         ports.update(int(p) for p in _ENV_PORT.findall(text))
+    if (text := _read(root / "package.json")) is not None:
+        try:
+            package = json.loads(text)
+        except ValueError:
+            package = None  # project.py already reports the parse error
+        scripts = package.get("scripts") if isinstance(package, dict) else None
+        if isinstance(scripts, dict):
+            for script in scripts.values():
+                if isinstance(script, str):
+                    ports.update(
+                        int(port)
+                        for match in _SCRIPT_PORT.finditer(script)
+                        for port in match.groups()
+                        if port
+                    )
     ports = {p for p in ports if 0 < p < 65536}
     if not ports:
         return []
