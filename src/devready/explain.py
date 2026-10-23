@@ -42,7 +42,7 @@ EXPLANATIONS = {
     "project.bun.tool_versions": ".tool-versions (asdf/mise) pins Bun for this project.",
     "project.env.ignored": "Warns when .env exists but git would commit it (not ignored, or already tracked). Values are never shown.",
     "project.node.modules": "Checked when package.json lists dependencies: node_modules must exist and not be older than a lockfile.",
-    "project.ports.free": "Ports declared in compose files (host side) or *PORT= lines in .env.example, tested by connecting to localhost. A busy port may be this project already running.",
+    "project.ports.free": "Ports declared in compose files (host side), `PORT=` lines in `.env.example`, or `--port`/`-p`/`PORT=` in `package.json` scripts, tested by connecting to localhost. A busy port may be this project already running.",
     "project.config.file": ".devready.json is optional. With unknown keys or invalid values it is ignored entirely. Run `devready init` for a starter.",
     "project.node.config": "require.node in .devready.json is a hard requirement (fails when unmet).",
     "project.python.config": "require.python in .devready.json is a hard requirement (fails when unmet).",
