@@ -40,7 +40,7 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `project.node.tool_versions` | .tool-versions (asdf/mise) pins Node for this project. |
 | `project.pnpm.pin` | package.json packageManager pins the pnpm version (corepack enable can install it). |
 | `project.pnpm.tool_versions` | .tool-versions (asdf/mise) pins pnpm for this project. |
-| `project.ports.free` | Ports declared in compose files (host side), `PORT=` lines in `.env.example`, or `--port`/`-p`/`PORT=` in `package.json` scripts, tested by connecting to localhost. A busy port may be this project already running. |
+| `project.ports.free` | Ports declared in compose files (host side), `*PORT=` lines in `.env.example`, or `--port`/`-p`/`PORT=` in `package.json` scripts, tested by connecting to localhost. A busy port may be this project already running. |
 | `project.python.config` | require.python in .devready.json is a hard requirement (fails when unmet). |
 | `project.python.pin` | .python-version (pyenv/uv) pins Python for this project. |
 | `project.python.requires` | pyproject.toml requires-python is a hard requirement; pip refuses incompatible versions. |
