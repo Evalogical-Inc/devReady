@@ -2,8 +2,10 @@ name: Publish to PyPI
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:  # re-run only the MCP Registry step for the current server.json
 jobs:
   publish:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -15,3 +17,15 @@ jobs:
           python-version: "3.13"
       - run: python -m pip install build && python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+  mcp-registry:
+    needs: publish
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # registry OIDC login grants io.github.<repo owner>/*
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - run: curl -sSfL https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz | tar xz mcp-publisher
+      - run: ./mcp-publisher login github-oidc
+      - run: ./mcp-publisher publish
