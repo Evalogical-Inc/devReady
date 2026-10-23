@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- npm launcher `devready-cli` (`npx devready-cli check`): runs the PyPI release of the same version through `uvx` or `pipx`. Published from `publish.yml` with npm provenance.
+
 ## 1.1.1 - 2026-10-23
 - `devready-cli` command alias, so `uvx devready-cli check` and `uvx devready-cli mcp` work without `--from`.
 - `server.json` for the MCP Registry (`io.github.Evalogical-Inc/devready`).

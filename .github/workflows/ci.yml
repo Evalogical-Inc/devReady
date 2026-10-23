@@ -18,6 +18,20 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest
+  npm:
+    # Launcher unit tests only; the real uvx/pipx run happens in publish.yml once PyPI has the version.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+      - run: npm test
+        working-directory: npm
   action:
     # Exercises action.yml itself (installs the published devready-cli from PyPI).
     strategy:

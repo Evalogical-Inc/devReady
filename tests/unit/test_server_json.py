@@ -11,6 +11,8 @@ def test_versions_match_package():
     # the registry rejects a server.json whose PyPI version does not exist yet
     assert SERVER["version"] == __version__
     assert [p["version"] for p in SERVER["packages"]] == [__version__]
+    # the npm launcher runs the PyPI release with its own version number
+    assert json.loads((ROOT / "npm" / "package.json").read_text())["version"] == __version__
 
 
 def test_readme_has_registry_ownership_marker():

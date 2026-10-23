@@ -79,7 +79,13 @@ Install from [PyPI](https://pypi.org/project/devready-cli/):
 ```bash
 pipx install devready-cli
 # or run without installing:
-uvx --from devready-cli devready check
+uvx devready-cli check
+```
+
+From npm (runs the same PyPI release through `uvx` or `pipx`, so one of them must be installed):
+
+```bash
+npx devready-cli check
 ```
 
 From a clone (for development):
