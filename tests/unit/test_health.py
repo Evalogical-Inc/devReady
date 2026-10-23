@@ -51,6 +51,35 @@ def test_ports(tmp_path):
     assert check_ports(tmp_path, lambda p: False)[0].summary.startswith("3 ")
 
 
+def test_ports_from_package_scripts(tmp_path):
+    package_file = tmp_path / "package.json"
+    package_file.write_text("{")
+    assert check_ports(tmp_path) == []  # project.py reports invalid JSON
+
+    package_file.write_text(
+        json.dumps(
+            {
+                "scripts": {
+                    "dev": "vite --port 5173",
+                    "start": "next start -p 3000",
+                    "equal": "server --port=4173",
+                    "env": "PORT=4000 node server.js",
+                    "junk": "echo nothing useful",
+                    "too_large": "server --port 65536",
+                    "too_many_digits": "server -p 999999",
+                },
+                "description": "server --port 9999",
+            }
+        )
+    )
+    seen = []
+    result = check_ports(tmp_path, lambda port: seen.append(port) or False)
+
+    assert seen == [3000, 4000, 4173, 5173]
+    assert result[0].status is Status.PASS
+    assert result[0].summary == "4 declared port(s) are free"
+
+
 def test_ids_have_explanations():
     for cid in ("project.env.ignored", "project.node.modules", "project.ports.free"):
         assert cid in EXPLANATIONS
