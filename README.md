@@ -162,7 +162,9 @@ DevReady ships the same engine three ways, so your agent can verify the environm
 /plugin install devready --marketplace Evalogical-Inc/devReady
 ```
 
-**Any MCP client** (Codex, Cursor, ...) - one read-only tool, `check_environment`:
+**Any MCP client** (Codex, Cursor, ...) - one read-only tool, `check_environment`. Also listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.Evalogical-Inc/devready`:
+
+<!-- mcp-name: io.github.Evalogical-Inc/devready -->
 
 ```toml
 # ~/.codex/config.toml (verify keys against your Codex version)

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "devready-cli"
-version = "1.1.0"
+version = "1.1.1"
 description = "A local-first, read-only CLI that checks a project's environment requirements against what is installed."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,6 +32,7 @@ Issues = "https://github.com/Evalogical-Inc/devReady/issues"
 
 [project.scripts]
 devready = "devready.cli:main"
+devready-cli = "devready.cli:main"  # so `uvx devready-cli ...` works (MCP registry)
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/devready"]

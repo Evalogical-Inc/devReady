@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2026-10-23
+- `devready-cli` command alias, so `uvx devready-cli check` and `uvx devready-cli mcp` work without `--from`.
+- `server.json` for the MCP Registry (`io.github.Evalogical-Inc/devready`).
+- CI and the GitHub Action use `actions/checkout@v7` and `actions/setup-python@v7` (Node 24).
+
 ## 1.1.0 - 2026-10-23
 - `check --quiet` shows only non-pass results in text output (#3). `devready --help` and `devready check --help` now list the exit codes.
 - Tests: version parsing for Windows, macOS and Debian `git`/`node`/`npm` output, plus empty output, non-zero exit and timeout (#4).
