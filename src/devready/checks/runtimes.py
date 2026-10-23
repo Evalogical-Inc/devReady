@@ -26,6 +26,16 @@ def _go_mod(text: str) -> str | None:
     return f">={m.group(1)}" if m else None
 
 
+def _gemfile(text: str) -> str | None:
+    # Recognize a literal declaration only; never evaluate Ruby or return other file content.
+    m = re.search(
+        r"""^[ \t]*ruby[ \t]+(["'])([0-9]+(?:\.[0-9]+){1,2})\1[ \t]*(?:\#[^\r\n]*)?\r?$""",
+        text,
+        re.M,
+    )
+    return m.group(2) if m else None
+
+
 def _rust(text: str) -> str | None:
     m = re.search(r"^\s*channel\s*=\s*[\"']([^\"']*)[\"']", text, re.M)
     return m.group(1) if m else text.strip().split("\n", 1)[0] or None
@@ -60,7 +70,8 @@ RUNTIMES: dict[str, tuple] = {
     "go": ("Go", "go", ("version",), "https://go.dev/doc/install", "golang",
            [("project.go.mod", "go.mod", _go_mod, Status.FAIL)]),
     "ruby": ("Ruby", "ruby", ("--version",), "https://www.ruby-lang.org/en/downloads/", "ruby",
-             [("project.ruby.pin", ".ruby-version", _first_version, Status.WARN)]),
+             [("project.ruby.pin", ".ruby-version", _first_version, Status.WARN),
+              ("project.ruby.gemfile", "Gemfile", _gemfile, Status.WARN)]),
     "java": ("Java", "java", ("-version",), "https://adoptium.net/", "java",
              [("project.java.pin", ".java-version", _first_version, Status.WARN)]),
     "rust": ("Rust", "rustc", ("--version",), "https://rustup.rs/", "rust",
