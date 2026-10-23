@@ -30,9 +30,10 @@ jobs:
           node-version: "lts/*"
           registry-url: "https://registry.npmjs.org"
       - run: npm install -g npm@latest  # trusted publishing needs npm >= 11.5
-      # smoke test: the launcher must run the PyPI release that was just published (pipx ships on the runner)
+      # smoke test: the launcher must run the PyPI release that was just published (pipx ships on the runner);
+      # PyPI's CDN can serve the old index for several minutes, so retry for up to ~10
       - run: |
-          for i in 1 2 3 4 5; do node bin/devready.js --version | grep -qx "devready $(node -p "require('./package.json').version")" && exit 0; sleep 30; done; exit 1
+          for i in $(seq 10); do node bin/devready.js --version | grep -qx "devready $(node -p "require('./package.json').version")" && exit 0; sleep 60; done; exit 1
         working-directory: npm
       # npm page shows the full project README; relative links point at GitHub
       - run: sed -E 's#\]\(([A-Za-z][^):]*)\)#](https://github.com/Evalogical-Inc/devReady/blob/main/\1)#g' ../README.md > README.md
