@@ -2,6 +2,11 @@
 
 ## Unreleased
 - The ports check now reads valid port declarations from string-valued `package.json` scripts, alongside Compose and `.env.example` files.
+- Read literal Ruby versions from Gemfile when .ruby-version has no readable version (#7). Mismatches warn; Gemfile code is never executed.
+
+## 1.1.2 - 2026-10-23
+- npm launcher `devready-cli` (`npx devready-cli check`): runs the PyPI release of the same version through `uvx` or `pipx`. First published by hand as 1.1.1; from 1.1.2 it is published from `publish.yml` with npm provenance.
+- The npm package page shows the full project README.
 
 ## 1.1.1 - 2026-10-23
 - `devready-cli` command alias, so `uvx devready-cli check` and `uvx devready-cli mcp` work without `--from`.
