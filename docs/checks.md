@@ -45,6 +45,7 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `project.python.pin` | .python-version (pyenv/uv) pins Python for this project. |
 | `project.python.requires` | pyproject.toml requires-python is a hard requirement; pip refuses incompatible versions. |
 | `project.python.tool_versions` | .tool-versions (asdf/mise) pins Python for this project. |
+| `project.ruby.gemfile` | A literal ruby declaration in Gemfile pins Ruby when .ruby-version has no readable version. Reads quoted major.minor or major.minor.patch versions, with optional trailing comments; never evaluates Ruby. A mismatch is a warning. |
 | `project.ruby.pin` | .ruby-version pins Ruby for this project (rbenv, rvm, mise). |
 | `project.ruby.tool_versions` | .tool-versions (asdf/mise) pins Ruby for this project. |
 | `project.rust.tool_versions` | .tool-versions (asdf/mise) pins Rust for this project. |
@@ -52,6 +53,6 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `project.yarn.pin` | package.json packageManager pins the Yarn version (corepack enable can install it). |
 | `project.yarn.tool_versions` | .tool-versions (asdf/mise) pins Yarn for this project. |
 | `python.version` | The Python interpreter running DevReady; not necessarily your project's virtualenv. |
-| `ruby.version` | Ruby interpreter; checked only when the project pins it (.ruby-version or .tool-versions). |
+| `ruby.version` | Ruby interpreter; checked only when the project pins it (.ruby-version, Gemfile or .tool-versions). |
 | `rust.version` | Rust compiler (rustc); checked only when the project has a rust-toolchain file or pin. |
 | `yarn.version` | Yarn package manager; checked only when package.json packageManager names yarn. |
