@@ -11,4 +11,4 @@ Full details: `skills/devready/SKILL.md`.
 
 ## Developing this repo
 
-`python -m pip install -e ".[dev]"`, then `ruff check . && pytest`. Never print env values or echo raw file/command output.
+`python -m pip install -e ".[dev]"`, then `ruff check . && ruff format --check . && pytest`. Never print env values or echo raw file/command output.

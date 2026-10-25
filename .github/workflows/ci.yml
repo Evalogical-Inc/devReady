@@ -17,6 +17,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -e ".[dev]"
       - run: ruff check .
+      - run: ruff format --check .
       - run: pytest
   npm:
     # Launcher unit tests only; the real uvx/pipx run happens in publish.yml once PyPI has the version.

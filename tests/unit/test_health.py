@@ -80,6 +80,8 @@ def test_ports_from_package_scripts(tmp_path):
     assert seen == [3000, 4000, 4173, 5173]
     assert result[0].status is Status.PASS
     assert result[0].summary == "4 declared port(s) are free"
+
+
 def test_ports_real_socket(tmp_path):
     with socket.socket() as listener:
         listener.bind(("127.0.0.1", 0))
