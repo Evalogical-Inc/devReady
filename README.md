@@ -222,7 +222,7 @@ Have a setup problem DevReady should catch? [Open an issue](https://github.com/E
 PRs welcome, especially new read-only checks and platform fixes. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [technical plan](docs/technical-plan.md); background research is in [docs/research.md](docs/research.md). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ```bash
-ruff check . && pytest
+ruff check . && ruff format --check . && pytest
 ```
 
 ## About Evalogical
