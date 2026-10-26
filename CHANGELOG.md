@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 - 2026-10-26
 - The ports check now reads valid port declarations from string-valued `package.json` scripts, alongside Compose and `.env.example` files.
 - Read literal Ruby versions from Gemfile when .ruby-version has no readable version (#7). Mismatches warn; Gemfile code is never executed.
 

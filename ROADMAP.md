@@ -13,18 +13,20 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Runtimes and pins**
 - [ ] `uv` / `pip` (needs a pin file to compare against).
-- [ ] `pom.xml` / `build.gradle` Java targets, `Gemfile` ruby version.
+- [ ] `pom.xml` / `build.gradle` Java targets.
+- [x] `Gemfile` ruby version (#13; literal pins only, Gemfile code is never executed).
 - [ ] Table-drive the Node/Python pins in `project.py` like `checks/runtimes.py`.
 
 **Project health**
 - [ ] Python dependency drift (venv present, `pip check`); held back because conda/global envs make "no venv" noisy.
-- [ ] Ports from `package.json` scripts (only compose files and `.env.example` today).
+- [x] Ports from `package.json` scripts, alongside compose files and `.env.example` (#11).
 - [ ] Docker: compose validity, image platform mismatch (arm64 vs amd64).
 - [ ] WSL version and Docker Desktop backend (`wsl` prints UTF-16, so parsing needs care).
 
 **Output**
-- [ ] SARIF file locations, so GitHub code scanning can show findings.
+- [ ] SARIF file locations, so GitHub code scanning can show findings (#10).
 - [ ] Exact fix commands in `fix --plan` (suggestions are prose today).
+- [ ] Text output readability: column alignment, wrapping, summary line (#12).
 
 **Quality**
 - [x] Real-tool runtime tests on CI (`tests/integration/test_runtimes_real.py`). Not covered: pnpm and Bun (not installed on any runner).
