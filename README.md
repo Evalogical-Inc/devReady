@@ -48,6 +48,7 @@ DevReady - Environment Check
 [FAIL ] Node engines 23.5.0 does not satisfy package.json engines (>=99)
 [WARN ] Python pin   3.15.0 does not satisfy .python-version (3.99)
 
+4 passed, 1 warning, 1 failed
 No changes were made to your system.
 ```
 
