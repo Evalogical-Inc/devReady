@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import shutil
 import sys
+import textwrap
+from collections import Counter
 from pathlib import Path
 
 from devready import __version__
@@ -21,15 +25,84 @@ EXIT_CODES = """exit codes (check):
   3  internal error"""
 
 
-def _text(results: list[Result], quiet: bool = False) -> str:
+_COLORS = {
+    Status.PASS: "32",
+    Status.WARN: "33",
+    Status.FAIL: "1;31",
+    Status.SKIP: "2",
+    Status.ERROR: "35",
+}
+_TAG = 8  # len("[WARN ] ")
+
+
+def _use_color(stream=None, env=None) -> bool:
+    stream, env = stream or sys.stdout, os.environ if env is None else env
+    if env.get("NO_COLOR") or env.get("TERM") == "dumb" or not stream.isatty():
+        return False
+    if sys.platform != "win32":
+        return True
+    try:  # Windows 10+ consoles need ANSI escapes switched on
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        handle, mode = kernel32.GetStdHandle(-11), ctypes.c_uint32()
+        return bool(
+            kernel32.GetConsoleMode(handle, ctypes.byref(mode))
+            and kernel32.SetConsoleMode(handle, mode.value | 4)
+        )
+    except (AttributeError, OSError):
+        return False
+
+
+def _width(stream=None) -> int:
+    stream = stream or sys.stdout
+    return max(shutil.get_terminal_size().columns, 40) if stream.isatty() else 80
+
+
+def _tally(results: list[Result]) -> str:
+    n = Counter(r.status for r in results)
+    parts = [
+        f"{n[Status.PASS]} passed",
+        f"{n[Status.WARN]} warning{'s' * (n[Status.WARN] != 1)}",
+        f"{n[Status.FAIL]} failed",
+    ]
+    if n[Status.SKIP]:
+        parts.append(f"{n[Status.SKIP]} skipped")
+    if n[Status.ERROR]:
+        parts.append(f"{n[Status.ERROR]} error{'s' * (n[Status.ERROR] != 1)}")
+    return ", ".join(parts)
+
+
+def _text(results: list[Result], quiet: bool = False, width: int = 80, color: bool = False) -> str:
+    shown = [r for r in results if not (quiet and r.status is Status.PASS)]
+    col = max((len(r.title) for r in shown), default=0)
+    indent = _TAG + col + 1
+    narrow = width - indent < 30  # too little room beside the title: summary goes on its own lines
+
+    def wrap(text: str, first: int, rest: int) -> list[str]:
+        return textwrap.wrap(
+            text,
+            width,
+            initial_indent=" " * first,
+            subsequent_indent=" " * rest,
+            break_on_hyphens=False,
+        )
+
     lines = ["DevReady - Environment Check", ""]
-    for r in results:
-        if quiet and r.status is Status.PASS:
-            continue
-        lines.append(f"[{r.status.value.upper():<5}] {r.title:<12} {r.summary}")
+    for r in shown:
+        tag = f"[{r.status.value.upper():<5}]"
+        if color:
+            tag = f"\033[{_COLORS[r.status]}m{tag}\033[0m"
+        if narrow:
+            body = _TAG
+            lines += [f"{tag} {r.title}", *wrap(r.summary, body, body)]
+        else:
+            body = indent
+            summary = wrap(r.summary, body, body) or [""]
+            lines += [f"{tag} {r.title:<{col}} {summary[0].lstrip()}".rstrip(), *summary[1:]]
         if r.status is not Status.PASS and r.suggestion:
-            lines.append(f"    {r.suggestion}")
-    lines += ["", "No changes were made to your system."]
+            lines += wrap(f"-> {r.suggestion}", body, body + 3)
+    lines += ["", _tally(results), "No changes were made to your system."]
     return "\n".join(lines)
 
 
@@ -133,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.format in ("junit", "sarif"):
         print(junit(results) if args.format == "junit" else sarif(results))
     else:
-        print(_text(results, args.quiet))
+        print(_text(results, args.quiet, _width(), _use_color()))
     if regressed is not None:  # with a baseline only a new or worse FAIL breaks the build
         return EXIT_FAILED if regressed else EXIT_OK
     return EXIT_FAILED if any(r.status is Status.FAIL for r in results) else EXIT_OK

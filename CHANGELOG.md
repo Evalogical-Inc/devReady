@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Text output is easier to scan (#12): the title column fits the longest title, long summaries and suggestions wrap to the terminal width (80 columns when not a terminal), suggestions are marked with `->`, the status tag is coloured on a terminal (off with `NO_COLOR` or `TERM=dumb`), and a closing line counts passed, warnings and failed. JSON, JUnit, SARIF and exit codes are unchanged.
+
 ## 1.2.0 - 2026-10-26
 - The ports check now reads valid port declarations from string-valued `package.json` scripts, alongside Compose and `.env.example` files.
 - Read literal Ruby versions from Gemfile when .ruby-version has no readable version (#7). Mismatches warn; Gemfile code is never executed.
