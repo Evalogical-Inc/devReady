@@ -157,6 +157,19 @@ devready --version
     skip: project.ports                  # optional; also: only, format, project, version
 ```
 
+To show findings in GitHub code scanning, save a SARIF report and upload it. Pin findings point at the file that declares the pin (`package.json`, `.nvmrc`, `go.mod`, ...); tool-only findings have no file.
+
+```yaml
+- uses: Evalogical-Inc/devReady@main
+  with:
+    format: sarif
+    output: devready.sarif
+  continue-on-error: true               # still upload when a requirement is unmet
+- uses: github/codeql-action/upload-sarif@v4
+  with:
+    sarif_file: devready.sarif
+```
+
 The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
 
 ## Add the badge

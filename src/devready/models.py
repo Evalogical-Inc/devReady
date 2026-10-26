@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 
 
@@ -20,8 +20,11 @@ class Result:
     summary: str
     suggestion: str = ""
     docs_url: str = ""
+    # project-relative file the result is about; internal (SARIF locations), never in JSON output
+    file: str = field(default="", compare=False)
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d["status"] = self.status.value
+        del d["file"]
         return d

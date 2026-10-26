@@ -64,3 +64,17 @@ jobs:
           project: tests/fixtures/action-fail
           only: project
           baseline: tests/fixtures/action-fail/baseline.json
+      - name: SARIF saved to a file, job still fails
+        id: sarif
+        uses: ./
+        continue-on-error: true
+        with:
+          project: tests/fixtures/action-fail
+          only: project
+          format: sarif
+          output: devready.sarif
+      - name: Expect the failure and a valid SARIF file
+        shell: bash
+        run: |
+          test "${{ steps.sarif.outcome }}" = "failure"
+          python -c "import json; assert json.load(open('devready.sarif'))['runs'][0]['results']"

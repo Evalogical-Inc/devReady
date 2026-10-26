@@ -34,9 +34,19 @@ def junit(results: list[Result]) -> str:
     return ET.tostring(suite, encoding="unicode", xml_declaration=False)
 
 
-def sarif(results: list[Result]) -> str:
-    # ponytail: findings carry no file location, so GitHub code scanning may not display them;
-    # add locations once checks know which file they read.
+def _location(r: Result, base: str) -> dict:
+    # GitHub code scanning needs a start line; checks know the file, not the line
+    uri = f"{base}/{r.file}" if base else r.file
+    return {
+        "physicalLocation": {
+            "artifactLocation": {"uri": uri},
+            "region": {"startLine": 1},
+        }
+    }
+
+
+def sarif(results: list[Result], base: str = "") -> str:
+    """`base` is the project directory relative to the repository root, as a POSIX path."""
     bad = [r for r in results if r.status in _LEVEL]
     doc = {
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
@@ -58,6 +68,7 @@ def sarif(results: list[Result]) -> str:
                         "ruleId": r.check_id,
                         "level": _LEVEL[r.status],
                         "message": {"text": f"{r.summary}. {r.suggestion}".strip()},
+                        **({"locations": [_location(r, base)]} if r.file else {}),
                     }
                     for r in bad
                 ],

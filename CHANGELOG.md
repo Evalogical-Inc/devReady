@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- SARIF results for pin checks now carry the file that declares the pin (`package.json`, `.nvmrc`, `.python-version`, `pyproject.toml`, `go.mod`, `.devready.json`, ...) as a location, relative to the repository root when `--project` is a subdirectory, so GitHub code scanning can show them (#10). Tool-only results have no location. JSON output and `docs/schema.json` are unchanged.
+- GitHub Action: new `output` input also saves the report to a file, for `upload-sarif`.
 - Text output is easier to scan (#12): the title column fits the longest title, long summaries and suggestions wrap to the terminal width (80 columns when not a terminal), suggestions are marked with `->`, the status tag is coloured on a terminal (off with `NO_COLOR` or `TERM=dumb`), and a closing line counts passed, warnings and failed. JSON, JUnit, SARIF and exit codes are unchanged.
 
 ## 1.2.0 - 2026-10-26
