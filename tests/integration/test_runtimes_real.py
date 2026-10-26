@@ -1,7 +1,8 @@
 """Real tools, no fakes: checks each installed runtime's actual `--version` output parses.
 
-Tools that are not installed are skipped. On CI each runtime is announced as a GitHub
-annotation (::notice) so the run shows which ones were actually exercised.
+Tools that are not installed are skipped locally; pnpm and Bun are required on CI.
+On CI each runtime is announced as a GitHub annotation (::notice) so the run shows
+which ones were actually exercised.
 """
 
 import os
@@ -26,13 +27,16 @@ def announce(capsys, text):
 @pytest.mark.parametrize("key", sorted(RUNTIMES))
 def test_real_version_output_is_parsed(key, tmp_path, capsys):
     title, exe, _, _, tv_name, _ = RUNTIMES[key]
+    required = ON_CI and key in {"pnpm", "bun"}
     if not shutil.which(exe):
         announce(capsys, f"{key}: not installed")
+        assert not required, f"{exe} must be installed on CI"
         pytest.skip(f"{exe} not installed")
     (tmp_path / ".tool-versions").write_text(f"{tv_name} >=0\n")  # any real version satisfies
     version, pin = check_runtimes(tmp_path)
     if version.status is Status.ERROR and "failed" in version.summary:
         announce(capsys, f"{key}: installed but its version command fails")
+        assert not required, f"{exe} must have a working version command on CI"
         pytest.skip(f"{exe} is installed without a working version command")
     assert version.check_id == f"{key}.version" and version.status is Status.PASS
     assert re.fullmatch(r"\d+(\.\d+)+ found", version.summary), version.summary
