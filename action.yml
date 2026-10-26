@@ -19,6 +19,9 @@ inputs:
   baseline:
     description: Path to a committed `--format json` report; only changes are shown and only a new or worse failure fails the job.
     default: ""
+  output:
+    description: Also save the report to this file, e.g. `devready.sarif` for `github/codeql-action/upload-sarif`.
+    default: ""
   version:
     description: devready-cli version to install (empty = latest).
     default: ""
@@ -40,11 +43,16 @@ runs:
         DR_SKIP: ${{ inputs.skip }}
         DR_VERSION: ${{ inputs.version }}
         DR_BASELINE: ${{ inputs.baseline }}
+        DR_OUTPUT: ${{ inputs.output }}
       run: |
-        set -eu
+        set -euo pipefail
         python -m pip install --quiet "devready-cli${DR_VERSION:+==$DR_VERSION}"
         args=(check --project "$DR_PROJECT" --format "$DR_FORMAT")
         for id in $DR_ONLY; do args+=(--only "$id"); done
         for id in $DR_SKIP; do args+=(--skip "$id"); done
         if [ -n "$DR_BASELINE" ]; then args+=(--baseline "$DR_BASELINE"); fi
-        python -m devready "${args[@]}"
+        if [ -n "$DR_OUTPUT" ]; then
+          python -m devready "${args[@]}" | tee "$DR_OUTPUT"
+        else
+          python -m devready "${args[@]}"
+        fi

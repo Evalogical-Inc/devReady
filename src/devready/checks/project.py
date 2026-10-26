@@ -23,12 +23,20 @@ def _read(path: Path) -> str | None:
 
 
 def _compare(
-    check_id: str, title: str, source: str, spec: str, installed: Version | None, miss: Status
+    check_id: str,
+    title: str,
+    source: str,
+    spec: str,
+    installed: Version | None,
+    miss: Status,
+    file: str = "",
 ) -> Result:
     # Echo only specs the matcher fully parses: plain words can pass SAFE_SPEC but are not versions.
     shown = spec if satisfies((0, 0, 0), spec) is not None else "(unrecognized)"
     if installed is None:
-        return Result(check_id, title, Status.SKIP, f"{source} wants {shown}; tool not found")
+        return Result(
+            check_id, title, Status.SKIP, f"{source} wants {shown}; tool not found", file=file
+        )
     ok = satisfies(installed, spec)
     have = ".".join(map(str, installed))
     if ok is None:
@@ -37,9 +45,12 @@ def _compare(
             title,
             Status.SKIP,
             f"{source} requirement could not be evaluated (installed {have})",
+            file=file,
         )
     if ok:
-        return Result(check_id, title, Status.PASS, f"{have} satisfies {source} ({shown})")
+        return Result(
+            check_id, title, Status.PASS, f"{have} satisfies {source} ({shown})", file=file
+        )
     return Result(
         check_id,
         title,
@@ -47,6 +58,7 @@ def _compare(
         f"{have} does not satisfy {source} ({shown})",
         "Switch versions with your version manager (nvm, pyenv, mise, ...) "
         "or update the requirement.",
+        file=file,
     )
 
 
@@ -58,7 +70,9 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
     for name in (".nvmrc", ".node-version"):
         if (text := _read(root / name)) is not None:
             out.append(
-                _compare("project.node.pin", "Node pin", name, text.strip(), node_v, Status.WARN)
+                _compare(
+                    "project.node.pin", "Node pin", name, text.strip(), node_v, Status.WARN, name
+                )
             )
             break
 
@@ -73,6 +87,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                     "Node engines",
                     Status.ERROR,
                     "package.json could not be parsed",
+                    file="package.json",
                 )
             )
             spec = None
@@ -85,6 +100,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                     spec,
                     node_v,
                     Status.FAIL,
+                    "package.json",
                 )
             )
 
@@ -97,6 +113,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                 text.strip().splitlines()[0] if text.strip() else "",
                 py_v,
                 Status.WARN,
+                ".python-version",
             )
         )
 
@@ -112,6 +129,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                     m.group(1),
                     py_v,
                     Status.FAIL,
+                    "pyproject.toml",
                 )
             )
 
@@ -129,6 +147,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                         parts[1],
                         node_v if is_node else py_v,
                         Status.WARN,
+                        ".tool-versions",
                     )
                 )
 

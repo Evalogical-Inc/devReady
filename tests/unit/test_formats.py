@@ -60,3 +60,45 @@ def test_fix_requires_plan(capsys):
     assert main(["fix"]) == 2
     assert main(["fix", "--plan", "--only", "python"]) == 0
     assert "Nothing to fix." in capsys.readouterr().out
+
+
+def test_sarif_location_for_pin_failure_only():
+    results = [
+        Result("project.node.engines", "Node engines", Status.FAIL, "too old", file="package.json"),
+        Result("git.version", "Git", Status.FAIL, "Git not found"),
+    ]
+    by_id = {r["ruleId"]: r for r in json.loads(sarif(results))["runs"][0]["results"]}
+    loc = by_id["project.node.engines"]["locations"][0]["physicalLocation"]
+    assert loc == {"artifactLocation": {"uri": "package.json"}, "region": {"startLine": 1}}
+    assert "locations" not in by_id["git.version"]
+    sub = json.loads(sarif(results, "apps/web"))["runs"][0]["results"][0]
+    assert (
+        sub["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        == "apps/web/package.json"
+    )
+
+
+def test_file_stays_out_of_json():
+    r = Result("project.node.pin", "Node pin", Status.WARN, "x", file=".nvmrc")
+    assert "file" not in r.to_dict()
+    assert r == Result("project.node.pin", "Node pin", Status.WARN, "x")
+
+
+def test_cli_sarif_locations_from_real_pins(capsys, tmp_path, monkeypatch):
+    app = tmp_path / "apps" / "web"
+    app.mkdir(parents=True)
+    (app / "package.json").write_text(json.dumps({"engines": {"node": ">=999"}}))
+    (app / ".python-version").write_text("2.0\n")
+    monkeypatch.chdir(tmp_path)
+    main(["check", "--project", "apps/web", "--format", "sarif"])
+    out = json.loads(capsys.readouterr().out)["runs"][0]["results"]
+    uris = {
+        r["ruleId"]: r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        for r in out
+        if "locations" in r
+    }
+    assert uris["project.python.pin"] == "apps/web/.python-version"
+    if "project.node.engines" in uris:  # only when Node is installed on the runner
+        assert uris["project.node.engines"] == "apps/web/package.json"
+    main(["check", "--project", "apps/web", "--format", "json"])
+    assert all("file" not in r for r in json.loads(capsys.readouterr().out)["results"])

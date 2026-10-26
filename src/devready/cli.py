@@ -59,6 +59,15 @@ def _width(stream=None) -> int:
     return max(shutil.get_terminal_size().columns, 40) if stream.isatty() else 80
 
 
+def _sarif_base(project: str) -> str:
+    # SARIF uris resolve against the repository root, which is the working directory in CI
+    try:
+        rel = Path(project).resolve().relative_to(Path.cwd().resolve())
+    except ValueError:  # project outside the working directory: keep project-relative uris
+        return ""
+    return "" if rel == Path(".") else rel.as_posix()
+
+
 def _tally(results: list[Result]) -> str:
     n = Counter(r.status for r in results)
     parts = [
@@ -204,7 +213,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         print(json.dumps(report(results), indent=2))
     elif args.format in ("junit", "sarif"):
-        print(junit(results) if args.format == "junit" else sarif(results))
+        print(
+            junit(results) if args.format == "junit" else sarif(results, _sarif_base(args.project))
+        )
     else:
         print(_text(results, args.quiet, _width(), _use_color()))
     if regressed is not None:  # with a baseline only a new or worse FAIL breaks the build

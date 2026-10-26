@@ -57,6 +57,7 @@ def load_config(root: Path) -> tuple[dict | None, Result | None]:
         Status.ERROR,
         f"{CONFIG_FILE} is invalid; it was ignored",
         'Allowed keys: "skip" (check ids), "require" (node/python specs), "env" (variable names).',
+        file=CONFIG_FILE,
     )
 
 
@@ -77,6 +78,7 @@ def check_config(
                 spec,
                 versions[key],
                 Status.FAIL,
+                CONFIG_FILE,
             )
         )
     wanted = cfg.get("env", [])

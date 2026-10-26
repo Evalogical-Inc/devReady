@@ -24,7 +24,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [ ] WSL version and Docker Desktop backend (`wsl` prints UTF-16, so parsing needs care).
 
 **Output**
-- [ ] SARIF file locations, so GitHub code scanning can show findings (#10).
+- [x] SARIF file locations, so GitHub code scanning can show findings (#10).
 - [ ] Exact fix commands in `fix --plan` (suggestions are prose today).
 - [ ] Text output readability: column alignment, wrapping, summary line (#12).
 
