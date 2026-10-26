@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "devready-cli"
-version = "1.1.2"
+version = "1.2.0"
 description = "A local-first, read-only CLI that checks a project's environment requirements against what is installed."
 readme = "README.md"
 requires-python = ">=3.10"

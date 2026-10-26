@@ -8,13 +8,13 @@
     "source": "github"
   },
   "websiteUrl": "https://devready-ten.vercel.app/",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "devready-cli",
-      "version": "1.1.2",
+      "version": "1.2.0",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
