@@ -16,6 +16,12 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 ![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)
 ![Status: stable](https://img.shields.io/badge/status-stable-green)
 
+<br/>
+
+<img src="https://raw.githubusercontent.com/Evalogical-Inc/devReady/main/docs/devready-demo.gif" alt="Demo of running devready check in a terminal" width="800"/>
+
+<sub>One command, every requirement checked, exact fixes shown.</sub>
+
 </div>
 
 ---
