@@ -13,6 +13,8 @@ def test_versions_match_package():
     assert [p["version"] for p in SERVER["packages"]] == [__version__]
     # the npm launcher runs the PyPI release with its own version number
     assert json.loads((ROOT / "npm" / "package.json").read_text())["version"] == __version__
+    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
+    assert plugin["version"] == __version__
 
 
 def test_readme_has_registry_ownership_marker():

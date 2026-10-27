@@ -37,6 +37,16 @@ Add a row to `MANAGERS` in `src/devready/managers.py` (runtime key, executable l
 command template with `{v}`) and a case in `tests/unit/test_managers.py` with a fake `which`.
 The manager is never executed.
 
+## Releasing (maintainers)
+
+1. Set the version in `pyproject.toml`, `src/devready/__init__.py`, `.claude-plugin/plugin.json`,
+   `server.json` (twice) and `npm/package.json` (`tests/unit/test_server_json.py` checks they match).
+2. Rename `## Unreleased` in `CHANGELOG.md` to `## X.Y.Z - YYYY-MM-DD`.
+3. Update `README.md` for what shipped: the checks list under Limitations, the Roadmap ticks and
+   any new flag in Usage. Update `skills/devready/SKILL.md`, `AGENTS.md` and the plugin description
+   if agents should react to something new.
+4. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry.
+
 ## Conduct and security
 
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report vulnerabilities privately per [SECURITY.md](SECURITY.md).
