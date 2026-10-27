@@ -12,6 +12,7 @@ EXPLANATIONS = {
     "project.python.requires": "pyproject.toml requires-python is a hard requirement; pip refuses incompatible versions.",
     "project.python.tool_versions": ".tool-versions (asdf/mise) pins Python for this project.",
     "project.env.keys": "Compares variable NAMES in .env.example with .env. Values are never read or shown.",
+    "docker.backend": "Windows only, when Docker is running. Warns when Docker Desktop uses the Hyper-V engine instead of WSL 2, or is in Windows containers mode while the Dockerfile builds a Linux image. `docker info` output is never shown.",
     "docker.cli": "Shown only when the project has a Dockerfile or compose file and the docker command is missing.",
     "docker.compose.valid": "Validates compose files with `docker compose config` (local parse, no daemon needed). Output is never shown; files using include: are skipped.",
     "docker.platform": "Warns when a Dockerfile `FROM --platform=` or compose `platform:` pins another CPU architecture than the Docker host (the image runs under emulation). Read line by line; no registry lookups.",

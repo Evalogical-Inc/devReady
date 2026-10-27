@@ -190,3 +190,32 @@ def test_platform_compose_aliases_and_hostile(tmp_path):
 def test_platform_no_pins_is_silent(tmp_path):
     (tmp_path / "Dockerfile").write_text("FROM node:20\n")
     assert _platform(tmp_path) is None
+
+
+def test_backend_windows_only(tmp_path):
+    (tmp_path / "Dockerfile").write_text("FROM node:20\n")
+
+    def backend(info, rc=0):
+        def run(argv):
+            if argv[1] == "info":
+                return SimpleNamespace(returncode=rc, stdout=info + "\nSECRET=hunter2")
+            ok = argv[1] == "version"
+            return SimpleNamespace(returncode=0 if ok else 1, stdout="27.1.1 amd64" if ok else "")
+
+        with (
+            patch("devready.checks.extras.shutil.which", return_value="docker"),
+            patch("devready.checks.extras._run", side_effect=run),
+            patch("devready.checks.extras.sys.platform", "win32"),
+        ):
+            return {r.check_id: r for r in extras.check_docker(tmp_path)}.get("docker.backend")
+
+    assert backend("linux 5.15.153.1-microsoft-standard-WSL2").status is Status.PASS
+    r = backend("linux 6.6.32-linuxkit")
+    assert r.status is Status.WARN and "Hyper-V" in r.summary and "hunter2" not in repr(r)
+    assert backend("windows 10.0 20348").status is Status.WARN
+    assert backend("linux 5.15", rc=1) is None
+    assert backend("linux 6.1.0-generic") is None  # e.g. a remote engine: nothing to say
+    (tmp_path / "Dockerfile").write_text("FROM mcr.microsoft.com/windows/servercore:ltsc2022\n")
+    assert backend("windows 10.0 20348") is None
+    with patch("devready.checks.extras.sys.platform", "linux"):
+        assert "docker.backend" not in {r.check_id for r in extras.check_docker(tmp_path)}
