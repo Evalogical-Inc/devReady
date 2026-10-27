@@ -111,6 +111,7 @@ def check_runtimes(
         out.append(res)
         v = parse_version(ver) if ver else None
         out += [
-            _compare(c, f"{title} pin", src, spec, v, miss, src) for c, src, spec, miss in found
+            _compare(c, f"{title} pin", src, spec, v, miss, src, key)
+            for c, src, spec, miss in found
         ]
     return out

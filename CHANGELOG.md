@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Version mismatches now suggest an exact command when the pin is a plain version and a supported version manager is on PATH (first: `fnm use --install-if-missing 20`). Managers are only looked up, never run; ranges keep the generic suggestion. Add managers in `src/devready/managers.py`.
 - Internal: Node and Python pins in `checks/project.py` are now a `PINS` table like `checks/runtimes.py`, so a new pin source is one row. Output is unchanged.
 - SARIF results for pin checks now carry the file that declares the pin (`package.json`, `.nvmrc`, `.python-version`, `pyproject.toml`, `go.mod`, `.devready.json`, ...) as a location, relative to the repository root when `--project` is a subdirectory, so GitHub code scanning can show them (#10). Tool-only results have no location. JSON output and `docs/schema.json` are unchanged.
 - GitHub Action: new `output` input also saves the report to a file, for `upload-sarif`.
