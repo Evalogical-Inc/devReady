@@ -8,6 +8,7 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `bun.version` | Bun runtime and package manager; checked only when package.json packageManager names bun. |
 | `disk.space` | Warns below 1 GB free where the project lives; installs and builds can fail when the disk is full. |
 | `docker.cli` | Shown only when the project has a Dockerfile or compose file and the docker command is missing. |
+| `docker.compose.valid` | Validates compose files with `docker compose config` (local parse, no daemon needed). Output is never shown; files using include: are skipped. |
 | `docker.daemon` | The Docker CLI can exist while the daemon is stopped. Start Docker Desktop or the service. |
 | `dotnet.version` | The .NET SDK; checked only when the project has a global.json or a dotnet pin. |
 | `git.identity` | Commits need user.name and user.email. DevReady checks they exist, never what they are. |

@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from devready.checks import extras
@@ -93,3 +94,59 @@ def test_every_emitted_id_is_explained(tmp_path):
     (tmp_path / "pyproject.toml").write_text('requires-python = ">=3.10"')
     for r in run_checks(tmp_path):
         assert r.check_id in EXPLANATIONS, r.check_id
+
+
+def _fake_compose(compose_ok: bool = True, plugin: bool = True):
+    calls = []
+
+    def run(argv):
+        calls.append(argv)
+        ok = {"version": True, "compose": plugin if argv[2] == "version" else compose_ok}
+        out = SimpleNamespace(returncode=0 if ok[argv[1]] else 1, stdout="27.1.1\n")
+        out.stdout += "SECRET=hunter2\n"  # Compose output must never reach a result
+        return out
+
+    return run, calls
+
+
+def test_compose_valid_pass_warn_skip(tmp_path):
+    (tmp_path / "compose.yaml").write_text("services: {}\n")
+    for kwargs, want in (
+        ({}, Status.PASS),
+        ({"compose_ok": False}, Status.WARN),
+        ({"plugin": False}, Status.SKIP),
+    ):
+        run, calls = _fake_compose(**kwargs)
+        with (
+            patch("devready.checks.extras.shutil.which", return_value="docker"),
+            patch("devready.checks.extras._run", side_effect=run),
+        ):
+            r = {x.check_id: x for x in extras.check_docker(tmp_path)}["docker.compose.valid"]
+        assert r.status is want
+        assert "hunter2" not in repr(r)
+        if want is Status.WARN:
+            assert r.file == "compose.yaml" and "config --quiet" not in r.suggestion
+            assert calls[-1][-2:] == ["config", "--quiet"]
+
+
+def test_compose_include_is_not_validated(tmp_path):
+    (tmp_path / "compose.yaml").write_text("include:\n  - oci://example/app\n")
+    run, calls = _fake_compose()
+    with (
+        patch("devready.checks.extras.shutil.which", return_value="docker"),
+        patch("devready.checks.extras._run", side_effect=run),
+    ):
+        r = {x.check_id: x for x in extras.check_docker(tmp_path)}["docker.compose.valid"]
+    assert r.status is Status.SKIP
+    assert not any("config" in c for c in calls)
+
+
+def test_dockerfile_only_runs_no_compose(tmp_path):
+    (tmp_path / "Dockerfile").write_text("FROM x")
+    run, calls = _fake_compose()
+    with (
+        patch("devready.checks.extras.shutil.which", return_value="docker"),
+        patch("devready.checks.extras._run", side_effect=run),
+    ):
+        assert [r.check_id for r in extras.check_docker(tmp_path)] == ["docker.daemon"]
+    assert len(calls) == 1

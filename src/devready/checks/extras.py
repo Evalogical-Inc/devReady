@@ -7,6 +7,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from devready.checks.project import _read
 from devready.models import Result, Status
 
 DOCKER_FILES = (
@@ -43,6 +44,10 @@ def check_docker(root: Path) -> list[Result]:
                 DOCKER_DOCS,
             )
         ]
+    return _check_daemon(exe) + _check_compose(root, exe)
+
+
+def _check_daemon(exe: str) -> list[Result]:
     p = _run([exe, "version", "--format", "{{.Server.Version}}"])
     if p is None:
         return [Result("docker.daemon", "Docker daemon", Status.ERROR, "Could not query Docker")]
@@ -61,6 +66,47 @@ def check_docker(root: Path) -> list[Result]:
     return [
         Result("docker.daemon", "Docker daemon", Status.PASS, f"reachable (server {m.group()})")
     ]
+
+
+_INCLUDE = re.compile(r"^include\s*:", re.M)
+
+
+def _check_compose(root: Path, exe: str) -> list[Result]:
+    """Validate compose files with `docker compose config`. Only the exit code is used: Compose
+    output can contain interpolated .env values, so it is never shown."""
+    files = [f for f in DOCKER_FILES[1:] if _read(root / f) is not None]
+    if not files:
+        return []
+    cid, title = "docker.compose.valid", "Compose file"
+    v = _run([exe, "compose", "version"])
+    if v is None or v.returncode != 0:
+        return [Result(cid, title, Status.SKIP, "Docker Compose plugin not found; not validated")]
+    bad = []
+    for name in files:
+        if _INCLUDE.search(_read(root / name) or ""):
+            # include: may name remote files; DevReady makes no network calls.
+            return [
+                Result(cid, title, Status.SKIP, f"{name} uses include:; not validated", file=name)
+            ]
+        p = _run([exe, "compose", "--project-directory", str(root), "-f", str(root / name),
+                  "config", "--quiet"])  # fmt: skip
+        if p is None:
+            return [Result(cid, title, Status.ERROR, f"Could not validate {name}", file=name)]
+        if p.returncode != 0:
+            bad.append(name)
+    if bad:
+        return [
+            Result(
+                cid,
+                title,
+                Status.WARN,
+                f"{bad[0]} is not a valid Compose file",
+                f"Run `docker compose -f {bad[0]} config` to see the errors.",
+                "https://docs.docker.com/reference/compose-file/",
+                file=bad[0],
+            )
+        ]
+    return [Result(cid, title, Status.PASS, f"{', '.join(files)} valid", file=files[0])]
 
 
 def check_git_identity() -> list[Result]:
