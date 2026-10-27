@@ -1,6 +1,6 @@
 """OS-specific pain points, each checked only when the project makes it relevant.
 
-Windows: long paths, PowerShell execution policy (blocks npm.ps1), git line endings.
+Windows: long paths, PowerShell execution policy (blocks npm.ps1), git line endings, WSL version.
 macOS/Linux: a compiler toolchain when the project looks like it builds native code.
 Read-only; fixed argv only.
 """
@@ -12,7 +12,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from devready.checks.extras import _run
+from devready.checks.extras import DOCKER_FILES, _run
 from devready.models import Result, Status
 
 NATIVE_HINTS = ("binding.gyp", "setup.py", "Gemfile", "Cargo.toml")
@@ -76,7 +76,39 @@ def _windows(root: Path, run: Callable, which: Callable, long_paths: Callable) -
                     "Add a .gitattributes with line-ending rules, or set core.autocrlf.",
                 )
             )
+    if any((root / f).is_file() and not (root / f).is_symlink() for f in DOCKER_FILES):
+        out += _wsl_version(run, which)
     return out
+
+
+def _wsl_version(run: Callable, which: Callable) -> list[Result]:
+    """Version of the default WSL distribution, from `wsl -l -v` (the row marked `*`).
+
+    wsl prints UTF-16LE; its ASCII text survives any decoding with NULs in between, so NULs are
+    dropped. Headers are localized, so only the row marker and the last column are used. The
+    distribution name is never shown."""
+    wsl = which("wsl")
+    p = run([wsl, "-l", "-v"]) if wsl else None
+    if p is None or p.returncode != 0:
+        return []
+    rows = [ln.split() for ln in p.stdout.replace("\x00", "").splitlines()]
+    version = next((r[-1] for r in rows if len(r) >= 3 and r[0] == "*"), "")
+    cid, title = "platform.wsl.version", "WSL version"
+    if version == "1":
+        return [
+            Result(
+                cid,
+                title,
+                Status.WARN,
+                "default WSL distribution uses WSL 1; Docker needs WSL 2",
+                "Convert it with `wsl --set-version <distro> 2` (list names with `wsl -l -v`) "
+                "and run `wsl --set-default-version 2`.",
+                "https://learn.microsoft.com/windows/wsl/install#upgrade-version-from-wsl-1-to-wsl-2",
+            )
+        ]
+    if version == "2":
+        return [Result(cid, title, Status.PASS, "default WSL distribution uses WSL 2")]
+    return []
 
 
 def _build_tools(root: Path, plat: str, run: Callable, which: Callable) -> list[Result]:

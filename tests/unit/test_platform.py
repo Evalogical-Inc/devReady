@@ -70,3 +70,30 @@ def test_ids_have_explanations(tmp_path):
     assert len(found) == 4
     for r in found:
         assert r.check_id in EXPLANATIONS, r.check_id
+
+
+def _utf16(text):
+    # What `wsl -l -v` bytes look like after Python decodes them as UTF-8/cp1252.
+    return text.encode("utf-16-le").decode("latin-1")
+
+
+def test_wsl_version_only_with_docker(tmp_path):
+    table = (
+        "  NAME      STATE    VERSION\r\n"
+        "* Ubuntu    Running  {v}\r\n"
+        "  docker-desktop  Stopped  2\r\n"
+    )
+
+    def run_wsl(v, rc=0):
+        def run(argv):
+            return proc(_utf16(table.format(v=v)), rc) if argv[1:] == ["-l", "-v"] else proc()
+
+        return check_platform(tmp_path, "win32", run, lambda n: n, lambda: True)
+
+    assert run_wsl("1") == []  # no Docker files
+    (tmp_path / "Dockerfile").write_text("FROM x\n")
+    r = ids(run_wsl("1"))["platform.wsl.version"]
+    assert r.status is Status.WARN and "Ubuntu" not in repr(r)
+    assert ids(run_wsl("2"))["platform.wsl.version"].status is Status.PASS
+    assert "platform.wsl.version" not in ids(run_wsl("2", rc=1))  # WSL not installed
+    assert "platform.wsl.version" not in ids(run_wsl("x; rm -rf"))  # unrecognized
