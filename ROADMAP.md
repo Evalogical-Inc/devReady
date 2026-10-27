@@ -21,7 +21,8 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [ ] Python dependency drift (venv present, `pip check`); held back because conda/global envs make "no venv" noisy.
 - [x] Ports from `package.json` scripts, alongside compose files and `.env.example` (#11).
 - [x] Docker: compose validity (`docker.compose.valid`), image platform mismatch (`docker.platform`).
-- [ ] WSL version and Docker Desktop backend (`wsl` prints UTF-16, so parsing needs care).
+- [ ] WSL version (`wsl` prints UTF-16, so parsing needs care).
+- [x] Docker Desktop backend (`docker.backend`).
 
 **Output**
 - [x] SARIF file locations, so GitHub code scanning can show findings (#10).
