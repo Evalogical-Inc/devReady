@@ -15,7 +15,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [ ] `uv` / `pip` (needs a pin file to compare against).
 - [ ] `pom.xml` / `build.gradle` Java targets.
 - [x] `Gemfile` ruby version (#13; literal pins only, Gemfile code is never executed).
-- [ ] Table-drive the Node/Python pins in `project.py` like `checks/runtimes.py`.
+- [x] Table-drive the Node/Python pins in `project.py` (`PINS`), like `checks/runtimes.py`.
 
 **Project health**
 - [ ] Python dependency drift (venv present, `pip check`); held back because conda/global envs make "no venv" noisy.

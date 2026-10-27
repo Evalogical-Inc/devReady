@@ -62,76 +62,59 @@ def _compare(
     )
 
 
+def _engines(text: str) -> str | None:
+    engines = json.loads(text).get("engines", {})
+    spec = engines.get("node") if isinstance(engines, dict) else None
+    return spec if isinstance(spec, str) else None
+
+
+def _first_line(text: str) -> str:
+    return text.strip().splitlines()[0] if text.strip() else ""
+
+
+def _requires_python(text: str) -> str | None:
+    # ponytail: regex instead of tomllib (3.11+) to keep 3.10 support; first match wins.
+    m = re.search(r"^\s*requires-python\s*=\s*[\"']([^\"']*)[\"']", text, re.M)
+    return m.group(1) if m else None
+
+
+# (id, title, files (first readable wins), source label ("" = file name), extractor, runtime, miss)
+# An extractor returns the spec, None to stay silent, or raises ValueError/AttributeError (ERROR).
+PINS: list[tuple] = [
+    ("project.node.pin", "Node pin", (".nvmrc", ".node-version"), "", str.strip, "node",
+     Status.WARN),
+    ("project.node.engines", "Node engines", ("package.json",), "package.json engines", _engines,
+     "node", Status.FAIL),
+    ("project.python.pin", "Python pin", (".python-version",), "", _first_line, "python",
+     Status.WARN),
+    ("project.python.requires", "Python requires", ("pyproject.toml",),
+     "pyproject requires-python", _requires_python, "python", Status.FAIL),
+]  # fmt: skip
+
+
 def check_project(root: Path, node: str | None, python: str | None) -> list[Result]:
-    node_v = parse_version(node) if node else None
-    py_v = parse_version(python) if python else None
+    installed = {
+        "node": parse_version(node) if node else None,
+        "python": parse_version(python) if python else None,
+    }
     out: list[Result] = []
 
-    for name in (".nvmrc", ".node-version"):
-        if (text := _read(root / name)) is not None:
-            out.append(
-                _compare(
-                    "project.node.pin", "Node pin", name, text.strip(), node_v, Status.WARN, name
+    for cid, title, files, label, extract, runtime, miss in PINS:
+        for name in files:
+            if (text := _read(root / name)) is None:
+                continue
+            try:
+                spec = extract(text)
+            except (ValueError, AttributeError):
+                out.append(
+                    Result(cid, title, Status.ERROR, f"{name} could not be parsed", file=name)
                 )
-            )
+                break
+            if spec is not None:
+                out.append(
+                    _compare(cid, title, label or name, spec, installed[runtime], miss, name)
+                )
             break
-
-    if (text := _read(root / "package.json")) is not None:
-        try:
-            engines = json.loads(text).get("engines", {})
-            spec = engines.get("node") if isinstance(engines, dict) else None
-        except (ValueError, AttributeError):
-            out.append(
-                Result(
-                    "project.node.engines",
-                    "Node engines",
-                    Status.ERROR,
-                    "package.json could not be parsed",
-                    file="package.json",
-                )
-            )
-            spec = None
-        if isinstance(spec, str):
-            out.append(
-                _compare(
-                    "project.node.engines",
-                    "Node engines",
-                    "package.json engines",
-                    spec,
-                    node_v,
-                    Status.FAIL,
-                    "package.json",
-                )
-            )
-
-    if (text := _read(root / ".python-version")) is not None:
-        out.append(
-            _compare(
-                "project.python.pin",
-                "Python pin",
-                ".python-version",
-                text.strip().splitlines()[0] if text.strip() else "",
-                py_v,
-                Status.WARN,
-                ".python-version",
-            )
-        )
-
-    if (text := _read(root / "pyproject.toml")) is not None:
-        # ponytail: regex instead of tomllib (3.11+) to keep 3.10 support; first match wins.
-        m = re.search(r"^\s*requires-python\s*=\s*[\"']([^\"']*)[\"']", text, re.M)
-        if m:
-            out.append(
-                _compare(
-                    "project.python.requires",
-                    "Python requires",
-                    "pyproject requires-python",
-                    m.group(1),
-                    py_v,
-                    Status.FAIL,
-                    "pyproject.toml",
-                )
-            )
 
     if (text := _read(root / ".tool-versions")) is not None:
         want = {"nodejs": "node", "node": "node", "python": "python"}
@@ -145,7 +128,7 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                         "Node tool-versions" if is_node else "Python tool-versions",
                         ".tool-versions",
                         parts[1],
-                        node_v if is_node else py_v,
+                        installed["node" if is_node else "python"],
                         Status.WARN,
                         ".tool-versions",
                     )
