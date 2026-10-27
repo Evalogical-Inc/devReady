@@ -14,6 +14,8 @@ from devready.checks.runtimes import RUNTIMES, check_runtimes
 from devready.models import Status
 
 ON_CI = os.environ.get("CI") == "true"
+# runtimes CI installs on purpose: a missing one is a failure, not a skip
+REQUIRED = set(os.environ.get("DEVREADY_REQUIRE_REAL", "").split())
 
 
 def announce(capsys, text):
@@ -27,6 +29,7 @@ def announce(capsys, text):
 def test_real_version_output_is_parsed(key, tmp_path, capsys):
     title, exe, _, _, tv_name, _ = RUNTIMES[key]
     if not shutil.which(exe):
+        assert key not in REQUIRED, f"{exe} must be installed (DEVREADY_REQUIRE_REAL)"
         announce(capsys, f"{key}: not installed")
         pytest.skip(f"{exe} not installed")
     (tmp_path / ".tool-versions").write_text(f"{tv_name} >=0\n")  # any real version satisfies
