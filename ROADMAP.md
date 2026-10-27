@@ -22,7 +22,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [x] Ports from `package.json` scripts, alongside compose files and `.env.example` (#11).
 - [x] Docker: compose validity (`docker.compose.valid`), image platform mismatch (`docker.platform`).
 - [x] WSL version (`platform.wsl.version`).
-- [ ] Docker Desktop backend (`docker.backend`).
+- [x] Docker Desktop backend (`docker.backend`).
 
 **Output**
 - [x] SARIF file locations, so GitHub code scanning can show findings (#10).

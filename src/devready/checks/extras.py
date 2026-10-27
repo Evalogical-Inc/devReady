@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from devready.checks.project import _read
@@ -45,7 +46,8 @@ def check_docker(root: Path) -> list[Result]:
             )
         ]
     daemon, arch = _check_daemon(exe)
-    return daemon + _check_compose(root, exe) + _check_platform(root, arch)
+    backend = _check_backend(root, exe) if arch and sys.platform == "win32" else []
+    return daemon + _check_compose(root, exe) + _check_platform(root, arch) + backend
 
 
 def _check_daemon(exe: str) -> tuple[list[Result], str]:
@@ -154,6 +156,49 @@ def _check_platform(root: Path, arch: str) -> list[Result]:
             ]
     return [Result(cid, title, Status.PASS, f"pinned platforms match the host ({arch})",
                    file=pins[0][0])]  # fmt: skip
+
+
+_WINDOWS_BASE = re.compile(r"^\s*FROM\s+\S*(?:windows|servercore|nanoserver)", re.M | re.I)
+
+
+def _check_backend(root: Path, exe: str) -> list[Result]:
+    """Windows: Docker Desktop should run Linux containers on the WSL 2 engine. Only the fixed
+    words below are matched; `docker info` output is never shown."""
+    p = _run([exe, "info", "--format", "{{.OSType}} {{.KernelVersion}}"])
+    if p is None or p.returncode != 0:
+        return []
+    os_type, _, kernel = p.stdout.strip().partition(" ")
+    cid, title = "docker.backend", "Docker backend"
+    if os_type == "windows":
+        if _WINDOWS_BASE.search(_read(root / "Dockerfile") or ""):
+            return []  # the project builds Windows images; Windows containers mode is right
+        return [
+            Result(
+                cid,
+                title,
+                Status.WARN,
+                "Docker is in Windows containers mode; Linux images will not run",
+                "Switch to Linux containers from the Docker Desktop tray menu.",
+                "https://docs.docker.com/desktop/setup/install/windows-install/",
+            )
+        ]
+    if os_type != "linux":
+        return []
+    if "wsl2" in kernel.lower():
+        return [Result(cid, title, Status.PASS, "Docker Desktop uses the WSL 2 engine")]
+    if "linuxkit" in kernel.lower():
+        return [
+            Result(
+                cid,
+                title,
+                Status.WARN,
+                "Docker Desktop uses the Hyper-V engine instead of WSL 2",
+                "Turn on Settings > General > Use the WSL 2 based engine; it is faster and is "
+                "Docker's default on Windows.",
+                "https://docs.docker.com/desktop/features/wsl/",
+            )
+        ]
+    return []
 
 
 def check_git_identity() -> list[Result]:
