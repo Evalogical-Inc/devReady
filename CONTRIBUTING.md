@@ -31,6 +31,12 @@ a timeout, and report only parsed values. Then:
 4. Test with injected fakes, plus a hostile-content case if it reads project files.
 5. Mention it in `CHANGELOG.md`. See [docs/versioning.md](docs/versioning.md) for what may change.
 
+## Adding a version manager
+
+Add a row to `MANAGERS` in `src/devready/managers.py` (runtime key, executable looked up on PATH,
+command template with `{v}`) and a case in `tests/unit/test_managers.py` with a fake `which`.
+The manager is never executed.
+
 ## Conduct and security
 
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report vulnerabilities privately per [SECURITY.md](SECURITY.md).

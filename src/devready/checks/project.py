@@ -10,6 +10,7 @@ import json
 import re
 from pathlib import Path
 
+from devready.managers import command
 from devready.models import Result, Status
 from devready.versions import Version, parse_version, satisfies
 
@@ -30,6 +31,7 @@ def _compare(
     installed: Version | None,
     miss: Status,
     file: str = "",
+    runtime: str = "",
 ) -> Result:
     # Echo only specs the matcher fully parses: plain words can pass SAFE_SPEC but are not versions.
     shown = spec if satisfies((0, 0, 0), spec) is not None else "(unrecognized)"
@@ -51,12 +53,15 @@ def _compare(
         return Result(
             check_id, title, Status.PASS, f"{have} satisfies {source} ({shown})", file=file
         )
+    cmd = command(runtime, spec)
     return Result(
         check_id,
         title,
         miss,
         f"{have} does not satisfy {source} ({shown})",
-        "Switch versions with your version manager (nvm, pyenv, mise, ...) "
+        f"Run `{cmd}`, or update the requirement."
+        if cmd
+        else "Switch versions with your version manager (nvm, pyenv, mise, ...) "
         "or update the requirement.",
         file=file,
     )
@@ -112,7 +117,9 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                 break
             if spec is not None:
                 out.append(
-                    _compare(cid, title, label or name, spec, installed[runtime], miss, name)
+                    _compare(
+                        cid, title, label or name, spec, installed[runtime], miss, name, runtime
+                    )
                 )
             break
 
@@ -128,9 +135,10 @@ def check_project(root: Path, node: str | None, python: str | None) -> list[Resu
                         "Node tool-versions" if is_node else "Python tool-versions",
                         ".tool-versions",
                         parts[1],
-                        installed["node" if is_node else "python"],
+                        installed[want[parts[0]]],
                         Status.WARN,
                         ".tool-versions",
+                        want[parts[0]],
                     )
                 )
 

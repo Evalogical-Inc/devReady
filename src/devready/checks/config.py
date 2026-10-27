@@ -79,6 +79,7 @@ def check_config(
                 versions[key],
                 Status.FAIL,
                 CONFIG_FILE,
+                key,
             )
         )
     wanted = cfg.get("env", [])
