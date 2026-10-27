@@ -19,6 +19,7 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `node.version` | Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks. |
 | `npm.version` | npm installs JavaScript dependencies and ships with Node.js. |
 | `platform.autocrlf` | Windows only, in a git repo without .gitattributes. Unset core.autocrlf can flip line endings between Windows and Linux/macOS contributors. |
+| `platform.wsl.version` | Windows only, when the project has a Dockerfile or compose file. Reads the default distribution's version from `wsl -l -v` and warns on WSL 1, which Docker does not support. The distribution name is never shown. |
 | `platform.build_tools` | macOS/Linux, when the project has binding.gyp, setup.py, Gemfile or Cargo.toml. Native dependencies need a compiler (Xcode CLT on macOS, cc/gcc/clang and make on Linux). |
 | `platform.exec_policy` | Windows only, when package.json exists. A Restricted or AllSigned PowerShell policy blocks npm.ps1 ('running scripts is disabled'). Use cmd or relax the policy for your user. |
 | `platform.long_paths` | Windows only, when package.json exists. Without LongPathsEnabled, deeply nested node_modules paths can exceed 260 characters and installs fail. |
