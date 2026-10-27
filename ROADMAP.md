@@ -20,7 +20,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 **Project health**
 - [ ] Python dependency drift (venv present, `pip check`); held back because conda/global envs make "no venv" noisy.
 - [x] Ports from `package.json` scripts, alongside compose files and `.env.example` (#11).
-- [ ] Docker: compose validity, image platform mismatch (arm64 vs amd64).
+- [x] Docker: compose validity (`docker.compose.valid`), image platform mismatch (`docker.platform`).
 - [ ] WSL version and Docker Desktop backend (`wsl` prints UTF-16, so parsing needs care).
 
 **Output**

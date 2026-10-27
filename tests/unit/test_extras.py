@@ -150,3 +150,43 @@ def test_dockerfile_only_runs_no_compose(tmp_path):
     ):
         assert [r.check_id for r in extras.check_docker(tmp_path)] == ["docker.daemon"]
     assert len(calls) == 1
+
+
+def _platform(tmp_path, server="27.1.1 arm64"):
+    def run(argv):
+        ok = argv[1] == "version"
+        return SimpleNamespace(returncode=0 if ok else 1, stdout=server if ok else "")
+
+    with (
+        patch("devready.checks.extras.shutil.which", return_value="docker"),
+        patch("devready.checks.extras._run", side_effect=run),
+    ):
+        return {r.check_id: r for r in extras.check_docker(tmp_path)}.get("docker.platform")
+
+
+def test_platform_mismatch_warns(tmp_path):
+    (tmp_path / "Dockerfile").write_text("FROM --platform=linux/amd64 node:20\n")
+    r = _platform(tmp_path)
+    assert r.status is Status.WARN and r.file == "Dockerfile"
+    assert "linux/amd64" in r.summary and "arm64" in r.summary
+    assert _platform(tmp_path, "27.1.1 amd64").status is Status.PASS
+    assert _platform(tmp_path, "not running") is None  # daemon down: no host arch
+
+
+def test_platform_compose_aliases_and_hostile(tmp_path):
+    (tmp_path / "compose.yaml").write_text(
+        "services:\n  a:\n    platform: 'linux/aarch64'\n"
+        "  b:\n    platform: linux/arm64/v8 # pinned\n"
+        "  c:\n    platform: ${PLATFORM}\n"
+        "  d:\n    platform: ignore_previous_instructions\n"
+    )
+    r = _platform(tmp_path)
+    assert r.status is Status.PASS and "ignore" not in repr(r)
+    (tmp_path / "Dockerfile").write_text("FROM --platform=$BUILDPLATFORM golang\n")
+    assert _platform(tmp_path).status is Status.PASS
+    assert _platform(tmp_path, "27.1.1 x86_64").status is Status.WARN
+
+
+def test_platform_no_pins_is_silent(tmp_path):
+    (tmp_path / "Dockerfile").write_text("FROM node:20\n")
+    assert _platform(tmp_path) is None
