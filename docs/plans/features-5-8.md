@@ -108,6 +108,8 @@ discovery channel DevReady can have, and extensions bring TypeScript contributor
 
 ## 8. Docker checks
 
+**Status: done** (#25, #26, #27, #29). `docker.backend` dropped the bind-mount condition.
+
 **Why:** "works in Docker on my Intel laptop, breaks on M-series" and "Docker Desktop not using
 WSL 2" are common team pain.
 

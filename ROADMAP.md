@@ -36,7 +36,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 ## Planned: team features
 
-Monorepo `--recursive`, org `--policy` file, VS Code extension, Docker platform/compose/WSL checks. Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
+Monorepo `--recursive`, org `--policy` file, VS Code extension (the Docker checks from the same plan have shipped). Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
 
 ## Decided against
 
