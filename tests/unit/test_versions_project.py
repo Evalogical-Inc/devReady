@@ -52,3 +52,14 @@ def test_unparseable_spec_is_never_echoed_even_when_tool_missing(tmp_path):
     for node, py in ((None, None), ("20.0.0", "3.12.0")):
         out = str(check_project(tmp_path, node, py))
         assert "evil" not in out and "IGNORE" not in out
+
+
+def test_every_pin_row_fires_from_its_files(tmp_path):
+    (tmp_path / ".node-version").write_text("20\n")  # fallback when .nvmrc is absent
+    (tmp_path / "package.json").write_text(json.dumps({"engines": {"node": ">=18"}}))
+    (tmp_path / ".python-version").write_text("3.12\nignored\n")
+    (tmp_path / "pyproject.toml").write_text('requires-python = ">=3.10"\n')
+    got = {r.check_id: r for r in check_project(tmp_path, "20.1.0", "3.12.4")}
+    assert [got[i].status for i in got] == [Status.PASS] * 4
+    assert got["project.node.pin"].file == ".node-version"
+    assert "pyproject requires-python" in got["project.python.requires"].summary
