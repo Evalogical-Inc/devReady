@@ -223,7 +223,7 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 
 ## Limitations
 
-- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon (only when the project has a Dockerfile/compose file), free disk space, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
+- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon, compose file validity and image platform (arm64 vs amd64) mismatch (only when the project has a Dockerfile/compose file), free disk space, Windows long paths, PowerShell policy, line endings, WSL version and Docker Desktop engine, macOS/Linux build tools, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
 - The Python version compared is the interpreter running DevReady, not necessarily your project's virtualenv.
 
@@ -232,7 +232,10 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [x] Docker CLI + daemon reachability, `.tool-versions`, `.env` key-name diff, disk space, git identity, `devready explain`
 - [x] Port-in-use checks, more ecosystems (Go, Rust, Java, Ruby, .NET, pnpm/yarn/bun), JUnit/SARIF output, `fix --plan`, GitHub Action
 - [x] `.devready.json` config, `--baseline` snapshots
-- [ ] Platform-specific checks (see [ROADMAP.md](ROADMAP.md))
+- [x] Platform-specific checks (Windows, macOS/Linux build tools, WSL)
+- [x] Docker compose validity, image platform, Docker Desktop engine
+- [x] Exact version-switch commands in suggestions (first: `fnm`)
+- [ ] Monorepo `--recursive`, org `--policy` file, VS Code extension (see [ROADMAP.md](ROADMAP.md))
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

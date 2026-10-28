@@ -2,7 +2,7 @@
   "name": "devready",
   "version": "1.2.0",
   "homepage": "https://devready-ten.vercel.app/",
-  "description": "Read-only environment preflight: compares a project's declared Node/Python versions with what is installed.",
+  "description": "Read-only environment preflight: checks a project's declared runtimes, tools, Docker and platform setup against what is installed.",
   "author": { "name": "DevReady contributors" },
   "license": "MIT"
 }

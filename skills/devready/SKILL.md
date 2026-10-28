@@ -1,6 +1,6 @@
 ---
 name: devready
-description: Check whether the local environment meets a project's declared requirements (Node/Python versions, Git, npm) before running installs, builds or tests, or when setup fails with version or missing-tool errors. Read-only.
+description: Check whether the local environment meets a project's declared requirements (runtime versions, Git, package managers, Docker and Compose, OS setup such as WSL) before running installs, builds or tests, or when setup fails with version, missing-tool or Docker errors. Read-only.
 ---
 
 # DevReady
@@ -24,8 +24,8 @@ If none work, tell the user and offer `pipx install devready-cli` (or `pip insta
 JSON: `{"schema_version": 1, "results": [{check_id, title, status, summary, suggestion, docs_url}]}`.
 Exit code: `0` ok, `1` a check failed, `2` bad usage, `3` internal error.
 
-- `fail`: a project requirement is not met (e.g. `package.json` engines). Tell the user, and propose switching versions with their version manager (nvm, pyenv, mise) before continuing.
-- `warn`: tool missing or a pin (`.nvmrc`, `.python-version`) differs. Mention it; continue if it is irrelevant to the task.
+- `fail`: a project requirement is not met (e.g. `package.json` engines). Tell the user and propose the result's `suggestion` (it names an exact command, such as `fnm use 20`, when a version manager is installed) before continuing.
+- `warn`: tool missing, a pin (`.nvmrc`, `.python-version`) differs, or a setup problem such as an invalid compose file, an image pinned to another CPU architecture, or WSL 1. Mention it; continue if it is irrelevant to the task.
 - `skip`/`error`: could not be evaluated. Say so; do not treat as pass.
 
 ## Rules
