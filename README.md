@@ -178,6 +178,40 @@ To show findings in GitHub code scanning, save a SARIF report and upload it. Pin
 
 The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
 
+## Use it with pre-commit
+
+With [pre-commit](https://pre-commit.com/) 3.2.0+ and Python 3.10+, add this to your
+`.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/Evalogical-Inc/devReady
+    rev: main  # unreleased; replace with a containing release tag or full commit SHA
+    hooks:
+      - id: devready
+        args: [--skip, disk.space]  # optional
+```
+
+The hook is unreleased; `v1.2.0` does not contain it. For a reproducible configuration,
+pin a full commit SHA or a later release tag that contains `.pre-commit-hooks.yaml`.
+
+Install the hook for pushes, then try it manually:
+
+```bash
+pre-commit install --hook-type pre-push
+pre-commit run devready --all-files --hook-stage pre-push
+```
+
+It runs `devready check` from your repository root before a push, even when no files
+match, and does not pass filenames to the CLI. Unmet requirements block the push.
+Use `args` for existing options such as `--only`, `--skip` and `--baseline`; relative
+paths are resolved from your repository root.
+
+pre-commit installs DevReady in an isolated Python environment. That interpreter is
+the Python version DevReady checks; set the hook's `language_version` if your project
+needs a specific installed Python. To run before commits instead, set
+`stages: [pre-commit]` on the hook and install with `--hook-type pre-commit`.
+
 ## Add the badge
 
 Tell contributors your project declares its requirements and can be checked with one command. Paste this into your README:
