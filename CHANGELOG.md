@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
 - New `docker.platform` check: warns when a Dockerfile `FROM --platform=` or a compose `platform:` pins a different CPU architecture than the Docker host (for example `linux/amd64` on an arm64 Mac), since the image then runs under emulation. Variables such as `$BUILDPLATFORM` are ignored; no registry lookups.
 - New `docker.backend` check (Windows): warns when Docker Desktop runs on the Hyper-V engine instead of WSL 2, or is in Windows containers mode for a project that builds Linux images. Only fixed words in `docker info` are matched; its output is never shown.
 - New `docker.compose.valid` check: compose files are validated with `docker compose config --quiet` when the Docker CLI is present. Only the result is reported (Compose output can contain `.env` values); files using `include:` are skipped because they may fetch remote files.

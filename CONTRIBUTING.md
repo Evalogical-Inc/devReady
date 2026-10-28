@@ -45,7 +45,10 @@ The manager is never executed.
 3. Update `README.md` for what shipped: the checks list under Limitations, the Roadmap ticks and
    any new flag in Usage. Update `skills/devready/SKILL.md`, `AGENTS.md` and the plugin description
    if agents should react to something new.
-4. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry.
+4. Set the README pre-commit example's `rev` to this release tag, confirm the release commit
+   contains `.pre-commit-hooks.yaml`, and test it before tagging:
+   `pre-commit try-repo . devready --all-files --hook-stage pre-push`.
+5. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry.
 
 ## Conduct and security
 
