@@ -23,7 +23,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "jsonschema>=4"]
+dev = ["pytest>=8", "ruff>=0.6", "jsonschema>=4", "pre-commit>=3.2.0"]
 
 [project.urls]
 Homepage = "https://devready-ten.vercel.app/"
