@@ -9,6 +9,7 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 
 [![CI](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml/badge.svg)](https://github.com/Evalogical-Inc/devReady/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/devready-cli)](https://pypi.org/project/devready-cli/)
+[![npm](https://img.shields.io/npm/v/devready-cli)](https://www.npmjs.com/package/devready-cli)
 [![DevReady](https://img.shields.io/badge/DevReady-%E2%9C%93%20ready-2ea44f)](https://github.com/Evalogical-Inc/devReady)
 [![Website](https://img.shields.io/badge/website-devready--ten.vercel.app-ff6a35)](https://devready-ten.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -89,7 +90,7 @@ pipx install devready-cli
 uvx devready-cli check
 ```
 
-From npm (runs the same PyPI release through `uvx` or `pipx`, so one of them must be installed):
+From [npm](https://www.npmjs.com/package/devready-cli) (runs the same PyPI release through `uvx` or `pipx`, so one of them must be installed):
 
 ```bash
 npx devready-cli check
