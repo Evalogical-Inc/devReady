@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import platform
 from pathlib import Path
 
 from devready.checks.config import check_config, load_config
@@ -21,17 +20,16 @@ def matches(check_id: str, ids: list[str]) -> bool:
 def run_checks(root: Path) -> list[Result]:
     cfg, cfg_error = load_config(root)
     py_result, py_version = check_python(root)
-    pyver = py_version or platform.python_version()
     results = [py_result]
     versions = {}
     for tool in TOOLS:
         result, versions[tool[2]] = check_tool(*tool)
         results.append(result)
     results += check_git_identity()
-    results += check_project(root, versions["node"], pyver)
+    results += check_project(root, versions["node"], py_version)
     results += check_runtimes(root) + check_health(root)
     results += check_docker(root) + check_platform(root) + check_disk(root)
-    results += [cfg_error] if cfg_error else check_config(cfg, versions["node"], pyver)
+    results += [cfg_error] if cfg_error else check_config(cfg, versions["node"], py_version)
     skip = (cfg or {}).get("skip", [])
     return [r for r in results if not matches(r.check_id, skip)]
 
