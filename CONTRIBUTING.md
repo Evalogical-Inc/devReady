@@ -45,7 +45,7 @@ The manager is never executed.
 3. Update `README.md` for what shipped: the checks list under Limitations, the Roadmap ticks and
    any new flag in Usage. Update `skills/devready/SKILL.md`, `AGENTS.md` and the plugin description
    if agents should react to something new.
-4. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry.
+4. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry, creates the GitHub Release from the changelog and moves the major tag (`v1`).
 
 ## Conduct and security
 
