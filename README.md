@@ -96,6 +96,17 @@ From [npm](https://www.npmjs.com/package/devready-cli) (runs the same PyPI relea
 npx devready-cli check
 ```
 
+No Python tooling yet (for example a JavaScript-only machine)? `uv` installs without Python, and `uvx` then runs DevReady with no further setup:
+
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+uvx devready-cli check
+```
+
 From a clone (for development):
 
 ```bash
