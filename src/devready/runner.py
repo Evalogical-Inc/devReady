@@ -31,9 +31,7 @@ def run_checks(root: Path) -> list[Result]:
     results += check_project(root, versions["node"], pyver)
     results += check_runtimes(root) + check_health(root)
     results += check_docker(root) + check_platform(root) + check_disk(root)
-    results += (
-        [cfg_error] if cfg_error else check_config(cfg, versions["node"], pyver)
-    )
+    results += [cfg_error] if cfg_error else check_config(cfg, versions["node"], pyver)
     skip = (cfg or {}).get("skip", [])
     return [r for r in results if not matches(r.check_id, skip)]
 
