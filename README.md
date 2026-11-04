@@ -158,7 +158,7 @@ devready --version
 ## Use it in CI (GitHub Actions)
 
 ```yaml
-- uses: Evalogical-Inc/devReady@main   # pin a release tag once published
+- uses: Evalogical-Inc/devReady@v1.2.0
   with:
     skip: project.ports                  # optional; also: only, format, project, version
 ```
@@ -166,7 +166,7 @@ devready --version
 To show findings in GitHub code scanning, save a SARIF report and upload it. Pin findings point at the file that declares the pin (`package.json`, `.nvmrc`, `go.mod`, ...); tool-only findings have no file.
 
 ```yaml
-- uses: Evalogical-Inc/devReady@main
+- uses: Evalogical-Inc/devReady@v1.2.0
   with:
     format: sarif
     output: devready.sarif

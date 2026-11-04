@@ -1,7 +1,7 @@
 """Static, beginner-friendly explanations per check id (used by `devready explain`)."""
 
 EXPLANATIONS = {
-    "python.version": "The Python interpreter running DevReady; not necessarily your project's virtualenv.",
+    "python.version": "The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked.",
     "git.version": "Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads",
     "node.version": "Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks.",
     "npm.version": "npm installs JavaScript dependencies and ships with Node.js.",

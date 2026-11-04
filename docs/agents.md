@@ -30,6 +30,16 @@ args = ["--from", "devready-cli", "devready", "mcp"]
 
 No `uv`? Install the CLI (`pipx install devready-cli` or `pip install devready-cli`) and use `command = "devready"`, `args = ["mcp"]` instead.
 
+## Add it to your project's AGENTS.md
+
+One line is enough for most agents. Paste this into your project's `AGENTS.md` (or `CLAUDE.md`):
+
+```markdown
+Before installing dependencies or running builds/tests, run `devready check --format json` and read the result. A `fail` means a declared requirement is unmet: tell the user instead of working around it.
+```
+
+The check is read-only and also reports which Python it used, so an agent starting a fresh shell sees the same interpreter it will get.
+
 ## Troubleshooting
 
 | Symptom | Cause and fix |
