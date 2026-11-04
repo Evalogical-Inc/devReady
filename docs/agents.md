@@ -47,3 +47,9 @@ The check is read-only and also reports which Python it used, so an agent starti
 | MCP server "Connection closed" | `uvx` not found. Install `uv`, or install the CLI and point the MCP config at `devready mcp`. |
 | `devready: command not found` | Not installed, or its scripts folder is not on PATH. Run `python -m devready check` or reinstall with `pipx`. |
 | `python -m devready` fails | The package is not installed for that Python. `pip install devready-cli`. |
+
+## What's next
+
+- Run `devready check` on a machine with real Docker: the Docker and WSL checks shipped in 1.3.0 have only been tested against mocked output.
+- Close the Docker checks tracking issue now that they have shipped.
+- Next feature: monorepo `--recursive` or the VS Code extension.
