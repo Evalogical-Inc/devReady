@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.3.0 - 2026-11-04
+- Fix: `python.version` now checks the Python a developer gets in the project (`.venv`/`venv`, else the first `python` on PATH) instead of the interpreter running DevReady, which under pipx is its own isolated environment. The result names the interpreter (`3.12.1 found (.venv\Scripts\python.exe)`), and Python pin checks use the same version. The check can now warn or error (no Python found, broken venv) where it used to always pass (#34).
+- Docs: the GitHub Action examples pin a release tag instead of `@main`; a paste-in `AGENTS.md` snippet; links to the npm package (#35).
 - New `docker.platform` check: warns when a Dockerfile `FROM --platform=` or a compose `platform:` pins a different CPU architecture than the Docker host (for example `linux/amd64` on an arm64 Mac), since the image then runs under emulation. Variables such as `$BUILDPLATFORM` are ignored; no registry lookups.
 - New `docker.backend` check (Windows): warns when Docker Desktop runs on the Hyper-V engine instead of WSL 2, or is in Windows containers mode for a project that builds Linux images. Only fixed words in `docker info` are matched; its output is never shown.
 - New `docker.compose.valid` check: compose files are validated with `docker compose config --quiet` when the Docker CLI is present. Only the result is reported (Compose output can contain `.env` values); files using `include:` are skipped because they may fetch remote files.
