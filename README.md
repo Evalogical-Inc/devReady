@@ -159,7 +159,7 @@ devready --version
 ## Use it in CI (GitHub Actions)
 
 ```yaml
-- uses: Evalogical-Inc/devReady@v1.2.0
+- uses: Evalogical-Inc/devReady@v1.3.0
   with:
     skip: project.ports                  # optional; also: only, format, project, version
 ```
@@ -167,7 +167,7 @@ devready --version
 To show findings in GitHub code scanning, save a SARIF report and upload it. Pin findings point at the file that declares the pin (`package.json`, `.nvmrc`, `go.mod`, ...); tool-only findings have no file.
 
 ```yaml
-- uses: Evalogical-Inc/devReady@v1.2.0
+- uses: Evalogical-Inc/devReady@v1.3.0
   with:
     format: sarif
     output: devready.sarif
@@ -226,7 +226,7 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 
 - Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon, compose file validity and image platform (arm64 vs amd64) mismatch (only when the project has a Dockerfile/compose file), free disk space, Windows long paths, PowerShell policy, line endings, WSL version and Docker Desktop engine, macOS/Linux build tools, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
-- The Python version compared is the interpreter running DevReady, not necessarily your project's virtualenv.
+- The Python version compared is the project's (`.venv`/`venv`, else the first `python` on PATH), and the result names the interpreter checked. DevReady does not look at other virtualenv locations (poetry, conda, pyenv shims).
 
 ## Roadmap
 
