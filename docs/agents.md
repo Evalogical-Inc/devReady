@@ -47,3 +47,13 @@ The check is read-only and also reports which Python it used, so an agent starti
 | MCP server "Connection closed" | `uvx` not found. Install `uv`, or install the CLI and point the MCP config at `devready mcp`. |
 | `devready: command not found` | Not installed, or its scripts folder is not on PATH. Run `python -m devready check` or reinstall with `pipx`. |
 | `python -m devready` fails | The package is not installed for that Python. `pip install devready-cli`. |
+
+
+What's next:
+1. Release 1.3.0. Unreleased now holds the 4 Docker checks, exact fix commands, SARIF file locations, the Action's output input and the text output changes. Follow the new checklist, then tag v1.3.0. That's what actually gets the new checks to plugin users.
+2. Post the contributor issues by running the script with --post:
+! python "C:\Users\nithi\AppData\Local\Temp\claude\D--code-PL2025-devready\86fa0eb3-afa4-46a1-8007-c5c5217c9328\scratchpad\file_issues.py" --post
+   One of those issues is the Docker checks tracking issue, which should be closed now that they've shipped.
+3. Next feature: monorepo --recursive or the VS Code extension. The extension is the most visible, and the most likely to attract users and sponsors.
+
+The 4 Docker checks still haven't been run against a real Docker install. Run devready check once on a machine with Docker before tagging.
