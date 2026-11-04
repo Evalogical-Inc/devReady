@@ -56,7 +56,7 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `project.rust.toolchain` | rust-toolchain(.toml) pins the Rust channel. Named channels such as stable are reported as not evaluated. |
 | `project.yarn.pin` | package.json packageManager pins the Yarn version (corepack enable can install it). |
 | `project.yarn.tool_versions` | .tool-versions (asdf/mise) pins Yarn for this project. |
-| `python.version` | The Python interpreter running DevReady; not necessarily your project's virtualenv. |
+| `python.version` | The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked. |
 | `ruby.version` | Ruby interpreter; checked only when the project pins it (.ruby-version, Gemfile or .tool-versions). |
 | `rust.version` | Rust compiler (rustc); checked only when the project has a rust-toolchain file or pin. |
 | `yarn.version` | Yarn package manager; checked only when package.json packageManager names yarn. |
