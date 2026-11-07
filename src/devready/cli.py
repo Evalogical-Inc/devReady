@@ -13,7 +13,8 @@ from devready import __version__
 from devready.baseline import diff, load_baseline
 from devready.formats import fix_plan, junit, sarif
 from devready.models import Result, Status
-from devready.runner import matches, report, run_checks
+from devready.runner import matches, report, report_projects, run_checks, run_recursive
+from devready.workspace import MAX_PACKAGES, discover_packages
 
 EXIT_OK, EXIT_FAILED, EXIT_USAGE, EXIT_INTERNAL = 0, 1, 2, 3
 
@@ -83,8 +84,19 @@ def _tally(results: list[Result]) -> str:
 
 
 def _text(results: list[Result], quiet: bool = False, width: int = 80, color: bool = False) -> str:
-    shown = [r for r in results if not (quiet and r.status is Status.PASS)]
-    col = max((len(r.title) for r in shown), default=0)
+    return _sections_text([("", results)], quiet, width, color)
+
+
+def _sections_text(
+    projects: list[tuple[str, list[Result]]],
+    quiet: bool = False,
+    width: int = 80,
+    color: bool = False,
+) -> str:
+    """Text report. A non-empty path (from --recursive) starts its own section."""
+    shown = [(p, [r for r in rs if not (quiet and r.status is Status.PASS)]) for p, rs in projects]
+    shown = [(p, rs) for p, rs in shown if rs or not p]  # --quiet: drop packages with only passes
+    col = max((len(r.title) for _, rs in shown for r in rs), default=0)
     indent = _TAG + col + 1
     narrow = width - indent < 30  # too little room beside the title: summary goes on its own lines
 
@@ -98,25 +110,61 @@ def _text(results: list[Result], quiet: bool = False, width: int = 80, color: bo
         )
 
     lines = ["DevReady - Environment Check", ""]
-    for r in shown:
-        tag = f"[{r.status.value.upper():<5}]"
-        if color:
-            tag = f"\033[{_COLORS[r.status]}m{tag}\033[0m"
-        if narrow:
-            body = _TAG
-            lines += [f"{tag} {r.title}", *wrap(r.summary, body, body)]
-        else:
-            body = indent
-            summary = wrap(r.summary, body, body) or [""]
-            lines += [f"{tag} {r.title:<{col}} {summary[0].lstrip()}".rstrip(), *summary[1:]]
-        if r.status is not Status.PASS and r.suggestion:
-            lines += wrap(f"-> {r.suggestion}", body, body + 3)
-    lines += ["", _tally(results), "No changes were made to your system."]
+    for path, rs in shown:
+        if path:
+            if lines[-1]:
+                lines.append("")
+            lines.append(f"-- {'. (root)' if path == '.' else path} --")
+        for r in rs:
+            tag = f"[{r.status.value.upper():<5}]"
+            if color:
+                tag = f"\033[{_COLORS[r.status]}m{tag}\033[0m"
+            if narrow:
+                body = _TAG
+                lines += [f"{tag} {r.title}", *wrap(r.summary, body, body)]
+            else:
+                body = indent
+                summary = wrap(r.summary, body, body) or [""]
+                lines += [f"{tag} {r.title:<{col}} {summary[0].lstrip()}".rstrip(), *summary[1:]]
+            if r.status is not Status.PASS and r.suggestion:
+                lines += wrap(f"-> {r.suggestion}", body, body + 3)
+    tally = _tally([r for _, rs in projects for r in rs])
+    if projects and projects[0][0]:
+        tally += f" across {len(projects)} packages"
+    lines += ["", tally, "No changes were made to your system."]
     return "\n".join(lines)
 
 
 def _selected(check_id: str, only: list[str], skip: list[str]) -> bool:
     return (not only or matches(check_id, only)) and not matches(check_id, skip)
+
+
+def _check_recursive(root: Path, args: argparse.Namespace) -> int:
+    if args.format in ("junit", "sarif") or args.baseline:
+        print(
+            "devready: --recursive supports --format text or json, without --baseline",
+            file=sys.stderr,
+        )
+        return EXIT_USAGE
+    try:
+        packages = discover_packages(root)
+        projects = run_recursive(root, packages[:MAX_PACKAGES])
+    except Exception as e:  # noqa: BLE001 - last-resort guard; never leak raw output
+        print(f"devready: internal error ({type(e).__name__})", file=sys.stderr)
+        return EXIT_INTERNAL
+    if len(packages) > MAX_PACKAGES:
+        print(
+            f"devready: found {len(packages)} packages; checked the first {MAX_PACKAGES}.",
+            file=sys.stderr,
+        )
+    projects = [(p, [r for r in rs if _selected(r.check_id, args.only, args.skip)])
+                for p, rs in projects]  # fmt: skip
+    if args.format == "json":
+        print(json.dumps(report_projects(projects), indent=2))
+    else:
+        print(_sections_text(projects, args.quiet, _width(), _use_color()))
+    failed = any(r.status is Status.FAIL for _, rs in projects for r in rs)
+    return EXIT_FAILED if failed else EXIT_OK
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -140,6 +188,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     check.add_argument(
         "--quiet", action="store_true", help="text format: show only non-pass results"
+    )
+    check.add_argument(
+        "--recursive",
+        action="store_true",
+        help="also check each workspace package (package.json workspaces, pnpm-workspace.yaml, "
+        "else folders with pin files up to 3 levels deep); JSON: docs/schema-multi.json",
     )
     fix = sub.add_parser("fix", help="print suggested fixes (never runs them)")
     fix.add_argument("--plan", action="store_true", help="required: list steps without running")
@@ -189,6 +243,8 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"devready: not a directory: {args.project}", file=sys.stderr)
         return EXIT_USAGE
+    if getattr(args, "recursive", False):  # `fix` has no --recursive
+        return _check_recursive(root, args)
     try:
         results = run_checks(root)
     except Exception as e:  # noqa: BLE001 - last-resort guard; never leak raw output
