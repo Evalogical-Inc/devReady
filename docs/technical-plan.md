@@ -2,7 +2,9 @@
 
 ## Technical Design and Implementation Plan
 
-**Document status:** Proposal / implementation guide\
+**Document status:** Original design proposal, written before 1.0. Its
+checklists are not kept up to date; current status is in
+[ROADMAP.md](../ROADMAP.md)\
 **Project type:** Open-source command-line developer tool\
 **Initial language:** Python\
 **Proposed package name:** `devready` (verify package-name availability
@@ -433,8 +435,9 @@ strictly necessary.
 
 ## 9. Implementation roadmap
 
-The roadmap below is a suggested sequence. Adjust it after the first
-working prototype.
+The roadmap below was the suggested pre-1.0 sequence and its boxes were
+never ticked. For what has shipped and what is next, see
+[ROADMAP.md](../ROADMAP.md).
 
 ### Phase 0 --- Validate the problem (1--2 days)
 
