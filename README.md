@@ -247,7 +247,8 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [x] Platform-specific checks (Windows, macOS/Linux build tools, WSL)
 - [x] Docker compose validity, image platform, Docker Desktop engine
 - [x] Exact version-switch commands in suggestions (first: `fnm`)
-- [ ] Monorepo `--recursive`, org `--policy` file, VS Code extension (see [ROADMAP.md](ROADMAP.md))
+- [ ] Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
+- [ ] Homebrew tap (#31) and a pre-commit hook (#32)
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

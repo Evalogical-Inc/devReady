@@ -1,16 +1,19 @@
 # Plan: team-facing features (5-8)
 
-Status: proposed. Each feature has a tracking issue; each numbered step below is one PR.
+Status: 8 (Docker) is done; 5-7 are proposed and tracked in #43, #44 and #45. Each numbered
+step below is one PR.
 All of it keeps the [principles](../../ROADMAP.md): read-only, local-first, zero runtime
 dependencies, Python >= 3.10, never print env values or raw file/command output, no network.
 Stability rules: [versioning.md](../versioning.md). Everything here is a 1.x minor unless noted.
 
-Suggested order: 8 (Docker, smallest) and 7 (VS Code, most visible) can start in parallel;
-5 (monorepo) before 6 (policy), because a policy is most useful across many packages.
+Suggested order: 5 (monorepo) before 6 (policy), because a policy is most useful across many
+packages; 7 (VS Code, most visible) can start in parallel.
 
 ---
 
 ## 5. Monorepo support: `devready check --recursive`
+
+**Tracking:** #43.
 
 **Why:** teams with pnpm/npm workspaces or several Python packages run DevReady once per folder
 today, or not at all.
@@ -46,6 +49,8 @@ just another package with path `"."`).
 
 ## 6. Org policy file: `devready check --policy FILE`
 
+**Tracking:** #44.
+
 **Why:** platform teams want one minimum toolchain for every repo ("Git >= 2.40, Node >= 20,
 Docker required") without editing each repo's `.devready.json`. This is the feature companies
 pay for in support time, so it is the main sponsor hook.
@@ -78,6 +83,8 @@ pay for in support time, so it is the main sponsor hook.
 ---
 
 ## 7. VS Code extension
+
+**Tracking:** #45.
 
 **Why:** daily visibility. A status-bar item that turns red when `.nvmrc` changes is the best
 discovery channel DevReady can have, and extensions bring TypeScript contributors.

@@ -51,5 +51,4 @@ The check is read-only and also reports which Python it used, so an agent starti
 ## What's next
 
 - Run `devready check` on a machine with real Docker: the Docker and WSL checks shipped in 1.3.0 have only been tested against mocked output.
-- Close the Docker checks tracking issue now that they have shipped.
-- Next feature: monorepo `--recursive` or the VS Code extension.
+- Next feature: monorepo `--recursive` (#43), then the org `--policy` file (#44), which builds on it. The VS Code extension (#45) can go in parallel.

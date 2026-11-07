@@ -26,8 +26,13 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Output**
 - [x] SARIF file locations, so GitHub code scanning can show findings (#10).
-- [ ] Exact fix commands in `fix --plan` (suggestions are prose today).
-- [ ] Text output readability: column alignment, wrapping, summary line (#12).
+- [ ] Exact fix commands in `fix --plan`. Partly done: version mismatches suggest an exact command when the pin is a plain version and a supported version manager is on PATH (first: `fnm`); other suggestions are prose.
+- [x] Text output readability: column alignment, wrapping, summary line (#12).
+
+**Distribution**
+- [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
+- [ ] pre-commit hook, `.pre-commit-hooks.yaml` (#32).
+- [ ] Standalone binaries (no design yet).
 
 **Quality**
 - [x] Real-tool runtime tests on CI (`tests/integration/test_runtimes_real.py`), including pnpm and Bun (installed in the CI job).
@@ -36,7 +41,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 ## Planned: team features
 
-Monorepo `--recursive`, org `--policy` file, VS Code extension (the Docker checks from the same plan have shipped). Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
+Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45). The Docker checks from the same plan have shipped. Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
 
 ## Decided against
 
