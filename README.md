@@ -309,7 +309,8 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [x] Exact version-switch commands in suggestions (first: `fnm`)
 - [x] Monorepo `--recursive` (#43)
 - [ ] Org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
-- [ ] Homebrew tap (#31) and a pre-commit hook (#32)
+- [x] pre-commit hook (#32)
+- [ ] Homebrew tap (#31)
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

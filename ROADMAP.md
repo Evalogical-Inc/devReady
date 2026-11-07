@@ -31,7 +31,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Distribution**
 - [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
-- [ ] pre-commit hook, `.pre-commit-hooks.yaml` (#32).
+- [x] pre-commit hook, `.pre-commit-hooks.yaml` (#32, unreleased; see the README).
 - [ ] Standalone binaries (no design yet).
 
 **Quality**
