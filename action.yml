@@ -19,6 +19,9 @@ inputs:
   baseline:
     description: Path to a committed `--format json` report; only changes are shown and only a new or worse failure fails the job.
     default: ""
+  recursive:
+    description: "true to also check each workspace package (monorepos). A baseline must then come from a --recursive run."
+    default: "false"
   output:
     description: Also save the report to this file, e.g. `devready.sarif` for `github/codeql-action/upload-sarif`.
     default: ""
@@ -44,6 +47,7 @@ runs:
         DR_VERSION: ${{ inputs.version }}
         DR_BASELINE: ${{ inputs.baseline }}
         DR_OUTPUT: ${{ inputs.output }}
+        DR_RECURSIVE: ${{ inputs.recursive }}
       run: |
         set -euo pipefail
         python -m pip install --quiet "devready-cli${DR_VERSION:+==$DR_VERSION}"
@@ -51,6 +55,7 @@ runs:
         for id in $DR_ONLY; do args+=(--only "$id"); done
         for id in $DR_SKIP; do args+=(--skip "$id"); done
         if [ -n "$DR_BASELINE" ]; then args+=(--baseline "$DR_BASELINE"); fi
+        if [ "$DR_RECURSIVE" = "true" ]; then args+=(--recursive); fi
         if [ -n "$DR_OUTPUT" ]; then
           python -m devready "${args[@]}" | tee "$DR_OUTPUT"
         else

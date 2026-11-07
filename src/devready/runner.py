@@ -12,6 +12,7 @@ from devready.checks.python_check import check_python
 from devready.checks.runtimes import check_runtimes
 from devready.checks.tools import TOOLS, check_tool
 from devready.models import Result
+from devready.workspace import MAX_PACKAGES, discover_packages
 
 
 def matches(check_id: str, ids: list[str]) -> bool:
@@ -62,13 +63,17 @@ MACHINE_IDS = {
 }  # fmt: skip
 
 
-def run_recursive(root: Path, packages: list[str]) -> list[tuple[str, list[Result]]]:
-    """Machine-wide checks once (reported under "."), then project checks once per package."""
+def run_recursive(root: Path) -> tuple[list[tuple[str, list[Result]]], int]:
+    """Machine-wide checks once (reported under "."), then project checks once per package.
+
+    Checks at most MAX_PACKAGES packages; also returns how many were found, so callers can say so.
+    """
     # ponytail: `docker` still runs once per package with Docker files; cache it if that is slow.
+    packages = discover_packages(root)
     machine, versions = machine_checks(root)
     seen: set[tuple] = set()
     out = []
-    for p in packages:
+    for p in packages[:MAX_PACKAGES]:
         kept = []
         for r in project_checks(root / p, versions, machine if p == "." else ()):
             key = (r.check_id, r.status, r.summary)
@@ -77,7 +82,7 @@ def run_recursive(root: Path, packages: list[str]) -> list[tuple[str, list[Resul
             seen.add(key)
             kept.append(r)
         out.append((p, kept))
-    return out
+    return out, len(packages)
 
 
 def report(results: list[Result]) -> dict:
