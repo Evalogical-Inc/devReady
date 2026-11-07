@@ -123,6 +123,7 @@ devready check                    # human-readable report for the current direct
 devready check --quiet            # only non-pass results (text format)
 devready check --project ../app   # inspect another project's pins
 devready check --format json      # machine-readable (see docs/schema.json)
+devready check --recursive        # monorepos: the root and every workspace package (see below)
 devready explain docker.daemon    # what a check means and how to fix it
 devready check --format junit     # or sarif, for CI
 devready check --only project --skip project.ports   # filter by id or prefix
@@ -167,12 +168,36 @@ devready --version
 }
 ```
 
+### Monorepos (`--recursive`)
+
+```bash
+devready check --recursive          # the root and every workspace package
+devready check --recursive --quiet  # only packages with something to report
+```
+
+```text
+-- . (root) --
+[PASS ] Python          3.12.1 found
+[PASS ] Git             2.52.0 found
+...
+-- apps/web --
+[FAIL ] Node engines    23.5.0 does not satisfy package.json engines (>=99)
+
+7 passed, 1 warning, 1 failed across 4 packages
+```
+
+- **Which packages:** `package.json` `workspaces` and `pnpm-workspace.yaml` `packages:` (`dir`, `dir/*`, `dir/**`). Without either, folders up to 3 levels deep that hold a pin file (`package.json`, `pyproject.toml`, `.nvmrc`, `go.mod`, ...). `node_modules`, `.git`, `.venv`, `venv`, `dist` and `build` are skipped.
+- **What runs where:** tool versions, git identity and disk space once; pins, `.env` keys, Docker files and config per package, each with its own `.devready.json`. A result about the machine (Python on PATH, Docker daemon, ...) is shown once even when several packages trigger it.
+- **Output:** a text section per package. `--format json` follows [`docs/schema-multi.json`](docs/schema-multi.json): `{"schema_version": 1, "projects": [{"path": "apps/web", "results": [...]}]}`, where `"."` is the root and each `results` item has the usual shape. SARIF and JUnit name the package; `--baseline` takes a saved `--recursive` report and compares package by package.
+- **Exit code** `1` when any package has a `fail`.
+- **Limits:** at most 200 packages (stderr says when more were found). Only folder names made of letters, digits and `_ . @ + -` count, symlinks are never followed, and negated patterns (`!**/test/**`) are ignored.
+
 ## Use it in CI (GitHub Actions)
 
 ```yaml
 - uses: Evalogical-Inc/devReady@v1.3.0
   with:
-    skip: project.ports                  # optional; also: only, format, project, version
+    skip: project.ports                  # optional; also: only, format, project, recursive, version
 ```
 
 To show findings in GitHub code scanning, save a SARIF report and upload it. Pin findings point at the file that declares the pin (`package.json`, `.nvmrc`, `go.mod`, ...); tool-only findings have no file.
@@ -188,7 +213,7 @@ To show findings in GitHub code scanning, save a SARIF report and upload it. Pin
     sarif_file: devready.sarif
 ```
 
-The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
+The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif, `recursive: true`) need a release that includes them; set `version:` to pin one.
 
 ## Use it with pre-commit
 
@@ -246,7 +271,7 @@ DevReady ships the same engine three ways, so your agent can verify the environm
 /plugin install devready --marketplace Evalogical-Inc/devReady
 ```
 
-**Any MCP client** (Codex, Cursor, ...) - one read-only tool, `check_environment`. Also listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.Evalogical-Inc/devready`:
+**Any MCP client** (Codex, Cursor, ...) - one read-only tool, `check_environment` (optional `project` path, `recursive: true` for monorepos). Also listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.Evalogical-Inc/devready`:
 
 <!-- mcp-name: io.github.Evalogical-Inc/devready -->
 
@@ -282,7 +307,8 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [x] Platform-specific checks (Windows, macOS/Linux build tools, WSL)
 - [x] Docker compose validity, image platform, Docker Desktop engine
 - [x] Exact version-switch commands in suggestions (first: `fnm`)
-- [ ] Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
+- [x] Monorepo `--recursive` (#43)
+- [ ] Org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
 - [ ] Homebrew tap (#31) and a pre-commit hook (#32)
 - [ ] Standalone binaries
 
