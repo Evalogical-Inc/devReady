@@ -1,7 +1,7 @@
 name: Publish to PyPI
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*.*.*"]  # full versions only: the moving major tag (v1) must not re-run this
   workflow_dispatch:  # re-run only the MCP Registry step for the current server.json
 jobs:
   publish:
@@ -69,3 +69,11 @@ jobs:
           awk -v v="${TAG#v}" '$0 ~ "^## "v" " {f=1; next} /^## / {f=0} f' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "See CHANGELOG.md" > notes.md
           gh release create "$TAG" --verify-tag --title "${TAG#v}" --notes-file notes.md
+      - name: Move the major tag (v1) to this release
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          case "$TAG" in *-*) exit 0;; esac   # skip pre-releases like v1.4.0-rc1
+          major="${TAG%%.*}"
+          git tag -f "$major" "$TAG"
+          git push -f origin "refs/tags/$major"
