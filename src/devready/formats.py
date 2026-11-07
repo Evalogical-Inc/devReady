@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import xml.etree.ElementTree as ET
+from dataclasses import replace
 
 from devready import __version__
 from devready.models import Result, Status
@@ -12,17 +13,28 @@ _LEVEL = {Status.FAIL: "error", Status.ERROR: "error", Status.WARN: "warning"}
 
 
 def junit(results: list[Result]) -> str:
+    return ET.tostring(_suite(results, "devready"), encoding="unicode", xml_declaration=False)
+
+
+def junit_projects(projects: list[tuple[str, list[Result]]]) -> str:
+    """--recursive: one testsuite per package."""
+    suites = ET.Element("testsuites", name="devready")
+    suites.extend(_suite(rs, "devready" if p == "." else f"devready {p}") for p, rs in projects)
+    return ET.tostring(suites, encoding="unicode", xml_declaration=False)
+
+
+def _suite(results: list[Result], name: str) -> ET.Element:
     count = lambda *s: str(sum(r.status in s for r in results))  # noqa: E731
     suite = ET.Element(
         "testsuite",
-        name="devready",
+        name=name,
         tests=str(len(results)),
         failures=count(Status.FAIL),
         errors=count(Status.ERROR),
         skipped=count(Status.SKIP),
     )
     for r in results:
-        case = ET.SubElement(suite, "testcase", classname="devready", name=r.check_id)
+        case = ET.SubElement(suite, "testcase", classname=name, name=r.check_id)
         if r.status is Status.FAIL:
             ET.SubElement(case, "failure", message=r.summary)
         elif r.status is Status.ERROR:
@@ -31,7 +43,7 @@ def junit(results: list[Result]) -> str:
             ET.SubElement(case, "skipped", message=r.summary)
         elif r.status is Status.WARN:  # warnings do not fail the suite; keep them visible
             ET.SubElement(case, "system-out").text = f"WARN: {r.summary}"
-    return ET.tostring(suite, encoding="unicode", xml_declaration=False)
+    return suite
 
 
 def _location(r: Result, base: str) -> dict:
@@ -76,6 +88,20 @@ def sarif(results: list[Result], base: str = "") -> str:
         ],
     }
     return json.dumps(doc, indent=2)
+
+
+def sarif_projects(projects: list[tuple[str, list[Result]]], base: str = "") -> str:
+    """--recursive: each result's file location and message start with its package path."""
+    return sarif(
+        [
+            r
+            if p in ("", ".")
+            else replace(r, summary=f"{p}: {r.summary}", file=r.file and f"{p}/{r.file}")
+            for p, rs in projects
+            for r in rs
+        ],
+        base,
+    )
 
 
 def fix_plan(results: list[Result]) -> str:

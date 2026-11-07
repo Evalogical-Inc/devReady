@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 from devready import __version__
-from devready.runner import report, run_checks
+from devready.runner import report, report_projects, run_checks, run_recursive
 
 PROTOCOL = "2024-11-05"
 TOOL = {
@@ -21,7 +21,12 @@ TOOL = {
     "inputSchema": {
         "type": "object",
         "properties": {
-            "project": {"type": "string", "description": "Project directory (default .)"}
+            "project": {"type": "string", "description": "Project directory (default .)"},
+            "recursive": {
+                "type": "boolean",
+                "description": "Also check each workspace package (monorepos); the report then "
+                "has one entry per package path",
+            },
         },
         "additionalProperties": False,
     },
@@ -29,14 +34,24 @@ TOOL = {
 }
 
 
+def _text(text: str) -> dict:
+    return {"type": "text", "text": text}
+
+
 def _call(params: dict) -> dict:
     if params.get("name") != TOOL["name"]:
         raise KeyError("unknown tool")
-    root = Path((params.get("arguments") or {}).get("project") or ".")
+    args = params.get("arguments") or {}
+    root = Path(args.get("project") or ".")
     if not root.is_dir():
-        return {"content": [{"type": "text", "text": "Not a directory"}], "isError": True}
-    text = json.dumps(report(run_checks(root)), indent=2)
-    return {"content": [{"type": "text", "text": text}]}
+        return {"content": [_text("Not a directory")], "isError": True}
+    if args.get("recursive") is not True:
+        return {"content": [_text(json.dumps(report(run_checks(root)), indent=2))]}
+    projects, found = run_recursive(root)
+    content = [_text(json.dumps(report_projects(projects), indent=2))]
+    if found > len(projects):
+        content.append(_text(f"Found {found} packages; checked the first {len(projects)}."))
+    return {"content": content}
 
 
 def handle(msg: dict) -> dict | None:

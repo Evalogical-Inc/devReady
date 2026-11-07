@@ -1,6 +1,7 @@
 """devready check --recursive (#43): machine-wide checks once, project checks per package."""
 
 import json
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import jsonschema
@@ -34,15 +35,26 @@ def repo(tmp_path):
 
 @pytest.fixture
 def fake_checks(monkeypatch):
-    """Machine-wide: one Git result. Per package: one result, FAIL only for the `web` folder."""
+    """Machine-wide: one Git result. Per package: one pin result about its package.json.
+
+    Returns folder name -> status of that pin (PASS unless set; `web` starts as FAIL).
+    """
+    status = {"web": Status.FAIL}
 
     def project(root, versions, machine=()):
-        status = Status.FAIL if root.name == "web" else Status.PASS
-        return [*machine, Result("project.x", f"Pin {root.name}", status, "summary")]
+        pin = Result(
+            "project.x",
+            f"Pin {root.name}",
+            status.get(root.name, Status.PASS),
+            "summary",
+            file="package.json",
+        )
+        return [*machine, pin]
 
     git = Result("git.version", "Git", Status.PASS, "2.45.0 found")
     monkeypatch.setattr(runner, "machine_checks", lambda root: ([git], {}))
     monkeypatch.setattr(runner, "project_checks", project)
+    return status
 
 
 def run(capsys, *args):
@@ -111,11 +123,49 @@ def test_packages_past_the_limit_are_reported_not_silently_dropped(tmp_path, fak
     assert "206 packages" in err and "first 200" in err
 
 
-@pytest.mark.parametrize(
-    "extra", [["--format", "junit"], ["--format", "sarif"], ["--baseline", "b.json"]]
-)
-def test_formats_not_supported_yet_are_a_usage_error(tmp_path, extra, capsys):
-    code, out, err = run(capsys, "--project", str(tmp_path), *extra)
+def test_sarif_points_each_result_at_its_package(repo, fake_checks, capsys):
+    code, out, _ = run(capsys, "--format", "sarif", "--project", str(repo))
+    (result,) = json.loads(out)["runs"][0]["results"]  # only web's FAIL is reported
+    location = result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+    assert location == "packages/web/package.json"
+    assert result["message"]["text"].startswith("packages/web: ")
+    assert code == 1
+
+
+def test_junit_has_a_testsuite_per_package(repo, fake_checks, capsys):
+    _, out, _ = run(capsys, "--format", "junit", "--project", str(repo))
+    suites = ET.fromstring(out)
+    assert suites.tag == "testsuites"
+    assert [(s.get("name"), s.get("failures")) for s in suites] == [
+        ("devready", "0"),
+        ("devready packages/api", "0"),
+        ("devready packages/web", "1"),
+    ]
+
+
+def test_baseline_is_compared_package_by_package(repo, fake_checks, capsys):
+    _, out, _ = run(capsys, "--format", "json", "--project", str(repo))
+    base = repo / "baseline.json"
+    base.write_text(out)
+    args = ("--format", "json", "--baseline", str(base), "--project", str(repo))
+
+    code, _, err = run(capsys, *args)
+    assert code == 0 and "0 of 4 changed" in err  # web's FAIL is a known one
+
+    fake_checks["api"] = Status.FAIL  # same check id as web's known FAIL, but a new package
+    code, out, _ = run(capsys, *args)
+    changed = {
+        p["path"]: [r["check_id"] for r in p["results"]] for p in json.loads(out)["projects"]
+    }
+    assert changed == {".": [], "packages/api": ["project.x"], "packages/web": []}
+    assert code == 1
+
+
+def test_a_single_project_report_is_not_a_recursive_baseline(repo, fake_checks, capsys):
+    main(["check", "--format", "json", "--project", str(repo)])
+    base = repo / "single.json"
+    base.write_text(capsys.readouterr().out)
+    code, out, err = run(capsys, "--baseline", str(base), "--project", str(repo))
     assert code == 2 and out == "" and "--recursive" in err
 
 

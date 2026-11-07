@@ -10,11 +10,10 @@ from collections import Counter
 from pathlib import Path
 
 from devready import __version__
-from devready.baseline import diff, load_baseline
-from devready.formats import fix_plan, junit, sarif
+from devready.baseline import diff, load_baseline, load_project_baselines
+from devready.formats import fix_plan, junit, junit_projects, sarif_projects
 from devready.models import Result, Status
 from devready.runner import matches, report, report_projects, run_checks, run_recursive
-from devready.workspace import MAX_PACKAGES, discover_packages
 
 EXIT_OK, EXIT_FAILED, EXIT_USAGE, EXIT_INTERNAL = 0, 1, 2, 3
 
@@ -139,32 +138,12 @@ def _selected(check_id: str, only: list[str], skip: list[str]) -> bool:
     return (not only or matches(check_id, only)) and not matches(check_id, skip)
 
 
-def _check_recursive(root: Path, args: argparse.Namespace) -> int:
-    if args.format in ("junit", "sarif") or args.baseline:
-        print(
-            "devready: --recursive supports --format text or json, without --baseline",
-            file=sys.stderr,
-        )
-        return EXIT_USAGE
-    try:
-        packages = discover_packages(root)
-        projects = run_recursive(root, packages[:MAX_PACKAGES])
-    except Exception as e:  # noqa: BLE001 - last-resort guard; never leak raw output
-        print(f"devready: internal error ({type(e).__name__})", file=sys.stderr)
-        return EXIT_INTERNAL
-    if len(packages) > MAX_PACKAGES:
-        print(
-            f"devready: found {len(packages)} packages; checked the first {MAX_PACKAGES}.",
-            file=sys.stderr,
-        )
-    projects = [(p, [r for r in rs if _selected(r.check_id, args.only, args.skip)])
-                for p, rs in projects]  # fmt: skip
-    if args.format == "json":
-        print(json.dumps(report_projects(projects), indent=2))
-    else:
-        print(_sections_text(projects, args.quiet, _width(), _use_color()))
-    failed = any(r.status is Status.FAIL for _, rs in projects for r in rs)
-    return EXIT_FAILED if failed else EXIT_OK
+def _load_baseline(path: Path, recursive: bool) -> dict[str, dict[str, Status]] | None:
+    """Package path -> (check_id -> status); a single-project report is the one path ""."""
+    if recursive:
+        return load_project_baselines(path)
+    single = load_baseline(path)
+    return None if single is None else {"": single}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -243,37 +222,47 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"devready: not a directory: {args.project}", file=sys.stderr)
         return EXIT_USAGE
-    if getattr(args, "recursive", False):  # `fix` has no --recursive
-        return _check_recursive(root, args)
+    # (path, results) pairs: one per package with --recursive, else one with path "".
+    recursive = getattr(args, "recursive", False)  # `fix` has no --recursive
     try:
-        results = run_checks(root)
+        projects, found = run_recursive(root) if recursive else ([("", run_checks(root))], 1)
     except Exception as e:  # noqa: BLE001 - last-resort guard; never leak raw output
         print(f"devready: internal error ({type(e).__name__})", file=sys.stderr)
         return EXIT_INTERNAL
+    if found > len(projects):
+        print(f"devready: found {found} packages; checked the first {len(projects)}.",
+              file=sys.stderr)  # fmt: skip
 
-    results = [r for r in results if _selected(r.check_id, args.only, args.skip)]
+    projects = [(p, [r for r in rs if _selected(r.check_id, args.only, args.skip)])
+                for p, rs in projects]  # fmt: skip
 
     if args.command == "fix":
-        print(fix_plan(results))
+        print(fix_plan(projects[0][1]))
         return EXIT_OK
 
     regressed = None
     if args.baseline:
-        base = load_baseline(Path(args.baseline))
+        base = _load_baseline(Path(args.baseline), recursive)
         if base is None:
-            print("devready: baseline is not a readable devready JSON report", file=sys.stderr)
+            kind = "--recursive " if recursive else ""
+            print(f"devready: baseline is not a readable devready {kind}JSON report",
+                  file=sys.stderr)  # fmt: skip
             return EXIT_USAGE
-        total = len(results)
-        results, regressed = diff(results, base)
-        print(f"Compared with baseline: {len(results)} of {total} changed.", file=sys.stderr)
+        total = sum(len(rs) for _, rs in projects)
+        compared = [(p, *diff(rs, base.get(p, {}))) for p, rs in projects]
+        projects = [(p, changed) for p, changed, _ in compared]
+        regressed = any(worse for *_, worse in compared)
+        shown = sum(len(rs) for _, rs in projects)
+        print(f"Compared with baseline: {shown} of {total} changed.", file=sys.stderr)
+    results = [r for _, rs in projects for r in rs]
     if args.format == "json":
-        print(json.dumps(report(results), indent=2))
-    elif args.format in ("junit", "sarif"):
-        print(
-            junit(results) if args.format == "junit" else sarif(results, _sarif_base(args.project))
-        )
+        print(json.dumps(report_projects(projects) if recursive else report(results), indent=2))
+    elif args.format == "junit":
+        print(junit_projects(projects) if recursive else junit(results))
+    elif args.format == "sarif":
+        print(sarif_projects(projects, _sarif_base(args.project)))
     else:
-        print(_text(results, args.quiet, _width(), _use_color()))
+        print(_sections_text(projects, args.quiet, _width(), _use_color()))
     if regressed is not None:  # with a baseline only a new or worse FAIL breaks the build
         return EXIT_FAILED if regressed else EXIT_OK
     return EXIT_FAILED if any(r.status is Status.FAIL for r in results) else EXIT_OK

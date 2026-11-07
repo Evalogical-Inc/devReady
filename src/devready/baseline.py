@@ -17,18 +17,35 @@ _ID = re.compile(r"^[a-z_]+(\.[a-z_]+)+$")
 _RANK = {Status.PASS: 0, Status.SKIP: 0, Status.WARN: 1, Status.ERROR: 2, Status.FAIL: 3}
 
 
+def _report(path: Path) -> dict:
+    """A v1 report; raises ValueError/KeyError/TypeError when the file is not one."""
+    text = _read(path)
+    data = json.loads(text) if text else None
+    if data["schema_version"] != 1:
+        raise ValueError("not schema_version 1")
+    return data
+
+
+def _statuses(results: list) -> dict[str, Status]:
+    return {
+        r["check_id"]: Status(r["status"])
+        for r in results
+        if isinstance(r["check_id"], str) and _ID.match(r["check_id"])
+    }
+
+
 def load_baseline(path: Path) -> dict[str, Status] | None:
     """check_id -> status, or None if the file is missing, too big, or not a v1 report."""
-    text = _read(path)
     try:
-        data = json.loads(text) if text else None
-        if data["schema_version"] != 1:
-            return None
-        return {
-            r["check_id"]: Status(r["status"])
-            for r in data["results"]
-            if isinstance(r["check_id"], str) and _ID.match(r["check_id"])
-        }
+        return _statuses(_report(path)["results"])
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def load_project_baselines(path: Path) -> dict[str, dict[str, Status]] | None:
+    """package path -> (check_id -> status) from a saved `check --recursive --format json`."""
+    try:
+        return {p["path"]: _statuses(p["results"]) for p in _report(path)["projects"]}
     except (ValueError, KeyError, TypeError):
         return None
 
