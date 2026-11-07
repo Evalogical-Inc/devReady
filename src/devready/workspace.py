@@ -3,7 +3,8 @@
 Read-only. Patterns come from package.json `workspaces` and pnpm-workspace.yaml `packages:`
 (line-based, no YAML dependency); supported shapes are `dir`, `dir/*` and `dir/**`. Without any
 pattern, folders up to 3 levels deep are scanned. Either way a folder counts only if it holds a
-pin file. Never follows symlinks or junctions, never leaves the root, skips tool folders.
+pin file and every part of its path is a plain name (reports print paths, and agents read them).
+Never follows symlinks or junctions, never leaves the root, skips tool folders.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ from pathlib import Path, PurePosixPath
 from devready.checks.project import PINS, _read
 from devready.checks.runtimes import RUNTIMES
 
-MAX_PACKAGES = 200
+MAX_PACKAGES = 200  # callers check at most this many, root included, and say so when cut
 MAX_DEPTH = 3
 SKIP = {"node_modules", ".git", ".venv", "venv", "dist", "build"}
 PIN_FILES = (
@@ -27,6 +28,7 @@ PIN_FILES = (
 )
 _YAML_ITEM = re.compile(r"""^\s*-\s*(["']?)([^"'#\s]+)\1\s*(?:#.*)?$""")
 _UNSUPPORTED = re.compile(r"[*?\[\]{}!:\\]|^/|(^|/)\.\.(/|$)")
+_PLAIN_NAME = re.compile(r"[A-Za-z0-9_.@+-]+")  # same as the path pattern in schema-multi.json
 
 
 def _patterns(root: Path) -> list[str]:
@@ -90,7 +92,7 @@ def _has_pin(folder: Path) -> bool:
 
 
 def discover_packages(root: Path) -> list[str]:
-    """Return "." then package folders relative to root (POSIX, sorted); at most MAX_PACKAGES."""
+    """Return "." then every package folder relative to root (POSIX, sorted)."""
     real_root = root.resolve()
     patterns = _patterns(root)
     found = (
@@ -98,6 +100,9 @@ def discover_packages(root: Path) -> list[str]:
         if patterns
         else set(_walk(root, real_root, PurePosixPath(), MAX_DEPTH))
     )
-    packages = sorted(p.as_posix() for p in found if p.parts and _has_pin(root / p))
-    # ponytail: packages past the cap are dropped silently; the --recursive flag PR must say so.
-    return [".", *packages][:MAX_PACKAGES]
+    packages = sorted(
+        p.as_posix()
+        for p in found
+        if p.parts and all(_PLAIN_NAME.fullmatch(n) for n in p.parts) and _has_pin(root / p)
+    )
+    return [".", *packages]

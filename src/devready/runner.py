@@ -54,5 +54,39 @@ def run_checks(root: Path) -> list[Result]:
     return project_checks(root, versions, machine)
 
 
+# Results about the machine that project files only trigger: with --recursive, an identical one
+# (same id, status, summary) is shown once. A package's own .venv gives a different summary.
+MACHINE_IDS = {
+    "python.version", "docker.cli", "docker.daemon", "docker.backend",
+    "platform.long_paths", "platform.exec_policy", "platform.wsl.version", "platform.build_tools",
+}  # fmt: skip
+
+
+def run_recursive(root: Path, packages: list[str]) -> list[tuple[str, list[Result]]]:
+    """Machine-wide checks once (reported under "."), then project checks once per package."""
+    # ponytail: `docker` still runs once per package with Docker files; cache it if that is slow.
+    machine, versions = machine_checks(root)
+    seen: set[tuple] = set()
+    out = []
+    for p in packages:
+        kept = []
+        for r in project_checks(root / p, versions, machine if p == "." else ()):
+            key = (r.check_id, r.status, r.summary)
+            if r.check_id in MACHINE_IDS and key in seen:
+                continue
+            seen.add(key)
+            kept.append(r)
+        out.append((p, kept))
+    return out
+
+
 def report(results: list[Result]) -> dict:
     return {"schema_version": 1, "results": [r.to_dict() for r in results]}
+
+
+def report_projects(projects: list[tuple[str, list[Result]]]) -> dict:
+    """The --recursive JSON report (docs/schema-multi.json)."""
+    return {
+        "schema_version": 1,
+        "projects": [{"path": p, "results": [r.to_dict() for r in rs]} for p, rs in projects],
+    }

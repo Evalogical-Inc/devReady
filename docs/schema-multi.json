@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DevReady report (check --recursive)",
+  "description": "One entry per package. path \".\" is the repository root and also holds the machine-wide results (tools, git identity, disk). Each results array has exactly the shape of results in schema.json.",
+  "type": "object",
+  "required": ["schema_version", "projects"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "results"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "pattern": "^(\\.|[A-Za-z0-9_.@+-]+(/[A-Za-z0-9_.@+-]+)*)$" },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["check_id", "title", "status", "summary", "suggestion", "docs_url"],
+              "additionalProperties": false,
+              "properties": {
+                "check_id": { "type": "string", "pattern": "^[a-z_]+(\\.[a-z_]+)+$" },
+                "title": { "type": "string" },
+                "status": { "enum": ["pass", "warn", "fail", "skip", "error"] },
+                "summary": { "type": "string" },
+                "suggestion": { "type": "string" },
+                "docs_url": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
