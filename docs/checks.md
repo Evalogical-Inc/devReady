@@ -10,8 +10,8 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `docker.backend` | Windows only, when Docker is running. Warns when Docker Desktop uses the Hyper-V engine instead of WSL 2, or is in Windows containers mode while the Dockerfile builds a Linux image. `docker info` output is never shown. |
 | `docker.cli` | Shown only when the project has a Dockerfile or compose file and the docker command is missing. |
 | `docker.compose.valid` | Validates compose files with `docker compose config` (local parse, no daemon needed). Output is never shown; files using include: are skipped. |
-| `docker.platform` | Warns when a Dockerfile `FROM --platform=` or compose `platform:` pins another CPU architecture than the Docker host (the image runs under emulation). Read line by line; no registry lookups. |
 | `docker.daemon` | The Docker CLI can exist while the daemon is stopped. Start Docker Desktop or the service. |
+| `docker.platform` | Warns when a Dockerfile `FROM --platform=` or compose `platform:` pins another CPU architecture than the Docker host (the image runs under emulation). Read line by line; no registry lookups. |
 | `dotnet.version` | The .NET SDK; checked only when the project has a global.json or a dotnet pin. |
 | `git.identity` | Commits need user.name and user.email. DevReady checks they exist, never what they are. |
 | `git.version` | Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads |
@@ -20,11 +20,26 @@ Every check id DevReady can emit. Ids are a public API (see [versioning.md](vers
 | `node.version` | Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks. |
 | `npm.version` | npm installs JavaScript dependencies and ships with Node.js. |
 | `platform.autocrlf` | Windows only, in a git repo without .gitattributes. Unset core.autocrlf can flip line endings between Windows and Linux/macOS contributors. |
-| `platform.wsl.version` | Windows only, when the project has a Dockerfile or compose file. Reads the default distribution's version from `wsl -l -v` and warns on WSL 1, which Docker does not support. The distribution name is never shown. |
 | `platform.build_tools` | macOS/Linux, when the project has binding.gyp, setup.py, Gemfile or Cargo.toml. Native dependencies need a compiler (Xcode CLT on macOS, cc/gcc/clang and make on Linux). |
 | `platform.exec_policy` | Windows only, when package.json exists. A Restricted or AllSigned PowerShell policy blocks npm.ps1 ('running scripts is disabled'). Use cmd or relax the policy for your user. |
 | `platform.long_paths` | Windows only, when package.json exists. Without LongPathsEnabled, deeply nested node_modules paths can exceed 260 characters and installs fail. |
+| `platform.wsl.version` | Windows only, when the project has a Dockerfile or compose file. Reads the default distribution's version from `wsl -l -v` and warns on WSL 1, which Docker does not support. The distribution name is never shown. |
 | `pnpm.version` | pnpm package manager; checked only when package.json packageManager names pnpm. |
+| `policy.bun.require` | The org policy file requires Bun: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.docker.require` | The org policy file requires Docker: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.dotnet.require` | The org policy file requires dotnet: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.env.required` | Variable NAMES listed under env in the org policy file must be set in the environment. Values are never read. |
+| `policy.file` | The org policy file (--policy or DEVREADY_POLICY) could not be read or is invalid, so it was ignored. Its content and path are never shown. |
+| `policy.git.require` | The org policy file requires Git: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.go.require` | The org policy file requires Go: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.java.require` | The org policy file requires Java: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.node.require` | The org policy file requires Node.js: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.npm.require` | The org policy file requires npm: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.pnpm.require` | The org policy file requires pnpm: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.python.require` | The org policy file requires Python: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.ruby.require` | The org policy file requires Ruby: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.rust.require` | The org policy file requires Rust: a version spec, or '*' for any installed version. Missing or too old fails the check. |
+| `policy.yarn.require` | The org policy file requires Yarn: a version spec, or '*' for any installed version. Missing or too old fails the check. |
 | `project.bun.pin` | package.json packageManager pins the Bun version. |
 | `project.bun.tool_versions` | .tool-versions (asdf/mise) pins Bun for this project. |
 | `project.config.file` | .devready.json is optional. With unknown keys or invalid values it is ignored entirely. Run `devready init` for a starter. |
