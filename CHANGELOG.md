@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
+
 ## 1.3.0 - 2026-11-04
 - Fix: `python.version` now checks the Python a developer gets in the project (`.venv`/`venv`, else the first `python` on PATH) instead of the interpreter running DevReady, which under pipx is its own isolated environment. The result names the interpreter (`3.12.1 found (.venv\Scripts\python.exe)`), and Python pin checks use the same version. The check can now warn or error (no Python found, broken venv) where it used to always pass (#34).
 - Docs: the GitHub Action examples pin a release tag instead of `@main`; a paste-in `AGENTS.md` snippet; links to the npm package (#35).
