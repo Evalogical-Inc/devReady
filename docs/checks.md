@@ -2,6 +2,7 @@
 
 Every check id DevReady can emit. Ids are a public API (see [versioning.md](versioning.md)).
 `devready explain <id>` prints the same text. A test fails if an id is missing from this file.
+With `--recursive` the ids are the same; each result is listed under the package it came from.
 
 | Check id | What it means |
 |---|---|

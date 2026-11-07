@@ -8,6 +8,7 @@ From 1.0, these are the public interface. Breaking any of them needs a major ver
 - Allowed in a minor release: new check ids, new result summaries and suggestions (free text, never parse them).
 - Needs `schema_version: 2` and a major release: adding, removing or renaming a result field, adding a status, changing a field's type.
 - Check ids match `^[a-z_]+(\.[a-z_]+)+$`. Renaming or removing an id is breaking; adding one is not.
+- `check --recursive --format json` follows `docs/schema-multi.json`: the same `schema_version`, a `projects` array of `path` + `results`, and each result has exactly the `schema.json` shape (a test keeps them identical). Those fields are frozen the same way. `path` is `"."` for the root, which also holds the machine-wide results.
 - Statuses: `pass`, `warn`, `fail`, `skip`, `error`. `fail` means a declared requirement is unmet; `skip`/`error` mean "not evaluated".
 
 ## Exit codes (`check`)

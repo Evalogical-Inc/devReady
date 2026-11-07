@@ -1,6 +1,6 @@
 # Using DevReady with coding agents
 
-DevReady is a CLI; agents call `devready check --format json` (schema: `schema.json`).
+DevReady is a CLI; agents call `devready check --format json` (schema: `schema.json`). In a monorepo, `devready check --recursive --format json` reports the root and each workspace package (schema: `schema-multi.json`).
 
 ## Requirements
 
@@ -20,7 +20,7 @@ Local test: `claude --plugin-dir .` in this repo. Adds the `devready` skill, `/d
 
 - `AGENTS.md` in this repo already tells agents when to run it.
 - The skill is a standard `skills/devready/SKILL.md`; copy the folder into your agent's skills directory (for Codex, check the current location in the Codex docs; it has changed between versions).
-- MCP: `devready mcp` runs a stdio server with one read-only tool, `check_environment` (optional `project` path). Example `~/.codex/config.toml` entry (verify keys against current Codex docs):
+- MCP: `devready mcp` runs a stdio server with one read-only tool, `check_environment` (optional `project` path; `recursive: true` for monorepos). Example `~/.codex/config.toml` entry (verify keys against current Codex docs):
 
 ```toml
 [mcp_servers.devready]
@@ -51,4 +51,5 @@ The check is read-only and also reports which Python it used, so an agent starti
 ## What's next
 
 - Run `devready check` on a machine with real Docker: the Docker and WSL checks shipped in 1.3.0 have only been tested against mocked output.
-- Next feature: monorepo `--recursive` (#43), then the org `--policy` file (#44), which builds on it. The VS Code extension (#45) can go in parallel.
+- Next feature: the org `--policy` file (#44), which should apply to every package `--recursive` finds. The VS Code extension (#45) can go in parallel.
+- After the next release, add a `recursive: true` step to the `action` job in `ci.yml` (it installs the published package, so it cannot test the input before then).

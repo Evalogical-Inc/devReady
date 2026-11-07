@@ -2,6 +2,8 @@
 
 ## Unreleased
 - Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
+- New `devready check --recursive` for monorepos (#43). Packages come from `package.json` `workspaces` and `pnpm-workspace.yaml`, or from folders with pin files up to 3 levels deep. Tool versions, git identity and disk space are checked once; pins, health, Docker files and `.devready.json` per package. Text output has a section per package, `--format json` follows the new `docs/schema-multi.json`, SARIF and JUnit name the package, and `--baseline` compares a saved `--recursive` report package by package. The GitHub Action has a `recursive` input and the MCP tool a `recursive` argument. Up to 200 packages; symlinks are never followed. Output without the flag is unchanged.
+- Results list `disk.space` right after `git.identity` instead of just before the config results. Ids and statuses are unchanged.
 
 ## 1.3.0 - 2026-11-04
 - Fix: `python.version` now checks the Python a developer gets in the project (`.venv`/`venv`, else the first `python` on PATH) instead of the interpreter running DevReady, which under pipx is its own isolated environment. The result names the interpreter (`3.12.1 found (.venv\Scripts\python.exe)`), and Python pin checks use the same version. The check can now warn or error (no Python found, broken venv) where it used to always pass (#34).

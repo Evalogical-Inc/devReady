@@ -31,7 +31,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Distribution**
 - [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
-- [ ] pre-commit hook, `.pre-commit-hooks.yaml` (#32).
+- [x] pre-commit hook, `.pre-commit-hooks.yaml` (#32, unreleased; see the README).
 - [ ] Standalone binaries (no design yet).
 
 **Quality**
@@ -39,9 +39,13 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [x] GitHub Action runs on Ubuntu/Windows/macOS in CI (pass, fail and baseline fixtures). Not covered: `sarif` and multi-id `only`/`skip`.
 - [x] macOS/Linux compiler lookup runs for real on GitHub's Ubuntu and macOS runners (`tests/integration/`). Not covered: a machine *without* a toolchain, and Windows warning branches on a locked-down machine.
 
-## Planned: team features
+## Team features
 
-Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45). The Docker checks from the same plan have shipped. Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
+- [x] Monorepo `--recursive` (#43): workspace discovery, machine-wide checks once and project checks per package, every output format, `--baseline`, Action `recursive` input, MCP `recursive` argument.
+- [ ] Org `--policy` file (#44). Next; it can apply to every package `--recursive` finds.
+- [ ] VS Code extension (#45).
+
+The Docker checks from the same plan have shipped. Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
 
 ## Decided against
 

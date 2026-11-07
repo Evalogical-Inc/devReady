@@ -1,7 +1,7 @@
 # Plan: team-facing features (5-8)
 
-Status: 8 (Docker) is done; 5-7 are proposed and tracked in #43, #44 and #45. Each numbered
-step below is one PR.
+Status: 5 (monorepo) and 8 (Docker) are done; 6 and 7 are proposed and tracked in #44 and #45.
+Each numbered step below is one PR.
 All of it keeps the [principles](../../ROADMAP.md): read-only, local-first, zero runtime
 dependencies, Python >= 3.10, never print env values or raw file/command output, no network.
 Stability rules: [versioning.md](../versioning.md). Everything here is a 1.x minor unless noted.
@@ -13,7 +13,11 @@ packages; 7 (VS Code, most visible) can start in parallel.
 
 ## 5. Monorepo support: `devready check --recursive`
 
-**Tracking:** #43.
+**Tracking:** #43. **Status: done** (#47, #48, #49, #50). Changes from the design below: Docker
+and platform checks run per package, because they read project files; a machine result they
+produce (Python on PATH, `docker.daemon`, ...) is shown once. Package paths are limited to plain
+names, since reports print them. `run_recursive` applies the 200 cap and reports how many
+packages were found.
 
 **Why:** teams with pnpm/npm workspaces or several Python packages run DevReady once per folder
 today, or not at all.
