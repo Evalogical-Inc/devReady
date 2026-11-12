@@ -49,6 +49,7 @@ The manager is never executed.
    contains `.pre-commit-hooks.yaml`, and test it before tagging:
    `pre-commit try-repo . devready --all-files --hook-stage pre-push`.
 5. Merge, then tag `vX.Y.Z` and push the tag; `publish.yml` publishes PyPI, npm and the MCP Registry, creates the GitHub Release from the changelog and moves the major tag (`v1`).
+6. Once PyPI has the release, bump the Homebrew tap: the `homebrew` job in `publish.yml` opens a PR on `Evalogical-Inc/homebrew-tap`. If it fails, run `python scripts/render_homebrew_formula.py X.Y.Z > Formula/devready.rb` in the tap and open the PR by hand. Merge it after the tap's CI passes.
 
 ## Conduct and security
 
