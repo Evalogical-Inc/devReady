@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Install with Homebrew on macOS and Linux: `brew install evalogical-inc/tap/devready` (#31). The formula lives in `Evalogical-Inc/homebrew-tap`, is built from the PyPI release, and is bumped by a PR the `homebrew` job in `publish.yml` opens after each release. DevReady itself is unchanged.
 - Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
 - New `devready check --recursive` for monorepos (#43). Packages come from `package.json` `workspaces` and `pnpm-workspace.yaml`, or from folders with pin files up to 3 levels deep. Tool versions, git identity and disk space are checked once; pins, health, Docker files and `.devready.json` per package. Text output has a section per package, `--format json` follows the new `docs/schema-multi.json`, SARIF and JUnit name the package, and `--baseline` compares a saved `--recursive` report package by package. The GitHub Action has a `recursive` input and the MCP tool a `recursive` argument. Up to 200 packages; symlinks are never followed. Output without the flag is unchanged.
 - Results list `disk.space` right after `git.identity` instead of just before the config results. Ids and statuses are unchanged.
