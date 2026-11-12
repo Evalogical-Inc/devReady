@@ -77,3 +77,31 @@ jobs:
           major="${TAG%%.*}"
           git tag -f "$major" "$TAG"
           git push -f origin "refs/tags/$major"
+  homebrew:
+    needs: publish
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' && !contains(github.ref_name, '-') }}  # full releases only
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Evalogical-Inc/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}  # fine-grained PAT: contents + pull requests on the tap only
+          path: tap
+      - name: Open the formula bump PR on the tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          v="${VERSION#v}"
+          # PyPI's JSON API can lag the upload (same CDN delay as the npm smoke test), so retry
+          for i in $(seq 30); do python scripts/render_homebrew_formula.py "$v" > tap/Formula/devready.rb && break; sleep 60; done
+          [ -s tap/Formula/devready.rb ]   # still empty after 30 tries: fail instead of opening a blank PR
+          cd tap
+          git diff --quiet && exit 0   # formula already at this version (re-run)
+          git switch -c "bump-devready-$v"
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -am "devready $v"
+          git push origin HEAD
+          gh pr create --title "devready $v" --body "Bump to the PyPI release devready-cli $v (rendered by Evalogical-Inc/devReady publish.yml)."
