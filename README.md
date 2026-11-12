@@ -96,6 +96,12 @@ From [npm](https://www.npmjs.com/package/devready-cli) (runs the same PyPI relea
 npx devready-cli check
 ```
 
+From [Homebrew](https://brew.sh/) on macOS and Linux:
+
+```bash
+brew install evalogical-inc/tap/devready
+```
+
 No Python tooling yet (for example a JavaScript-only machine)? `uv` installs without Python, and `uvx` then runs DevReady with no further setup:
 
 ```bash
