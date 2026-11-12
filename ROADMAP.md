@@ -30,7 +30,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 - [x] Text output readability: column alignment, wrapping, summary line (#12).
 
 **Distribution**
-- [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
+- [x] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31, see the README).
 - [x] pre-commit hook, `.pre-commit-hooks.yaml` (#32, unreleased; see the README).
 - [ ] Standalone binaries (no design yet).
 
