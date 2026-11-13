@@ -17,7 +17,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `git.identity` | Commits need user.name and user.email. DevReady checks they exist, never what they are. |
 | `git.version` | Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads |
 | `go.version` | Go toolchain; checked only when the project has a go.mod or a golang line in .tool-versions. |
-| `java.version` | Java runtime; checked only when the project pins it (.java-version or .tool-versions). |
+| `java.version` | Java runtime; checked only when the project pins it (.java-version, .sdkmanrc or .tool-versions). |
 | `node.version` | Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks. |
 | `npm.version` | npm installs JavaScript dependencies and ships with Node.js. |
 | `platform.autocrlf` | Windows only, in a git repo without .gitattributes. Unset core.autocrlf can flip line endings between Windows and Linux/macOS contributors. |
@@ -37,6 +37,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.go.mod` | The go directive in go.mod is the minimum Go version. A lower toolchain fails the check. |
 | `project.go.tool_versions` | .tool-versions (asdf/mise) pins Go for this project. |
 | `project.java.pin` | .java-version pins Java for this project (jenv, mise). |
+| `project.java.sdkman` | .sdkmanrc pins Java for SDKMAN. The vendor suffix is ignored; .java-version takes precedence. A mismatch is a warning. |
 | `project.java.tool_versions` | .tool-versions (asdf/mise) pins Java for this project. |
 | `project.node.config` | require.node in .devready.json is a hard requirement (fails when unmet). |
 | `project.node.engines` | package.json engines.node is a hard requirement. A mismatch fails the check and npm may refuse to install. |

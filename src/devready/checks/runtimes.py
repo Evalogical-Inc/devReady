@@ -21,6 +21,19 @@ def _first_version(text: str) -> str | None:
     return m.group() if m else None
 
 
+def _sdkman(name: str) -> Callable[[str], str | None]:
+    def extract(text: str) -> str | None:
+        match = re.search(
+            rf"^[ \t]*{re.escape(name)}[ \t]*=[ \t]*([0-9]+(?:\.[0-9]+){{0,2}})"
+            r"(?:-[A-Za-z0-9][A-Za-z0-9._-]*)?[ \t]*(?:#[^\r\n]*)?\r?$",
+            text,
+            re.M,
+        )
+        return match.group(1) if match else None
+
+    return extract
+
+
 def _go_mod(text: str) -> str | None:
     m = re.search(r"^go\s+(\d+(?:\.\d+){1,2})", text, re.M)
     return f">={m.group(1)}" if m else None
@@ -73,7 +86,8 @@ RUNTIMES: dict[str, tuple] = {
              [("project.ruby.pin", ".ruby-version", _first_version, Status.WARN),
               ("project.ruby.gemfile", "Gemfile", _gemfile, Status.WARN)]),
     "java": ("Java", "java", ("-version",), "https://adoptium.net/", "java",
-             [("project.java.pin", ".java-version", _first_version, Status.WARN)]),
+             [("project.java.pin", ".java-version", _first_version, Status.WARN),
+              ("project.java.sdkman", ".sdkmanrc", _sdkman("java"), Status.WARN)]),
     "rust": ("Rust", "rustc", ("--version",), "https://rustup.rs/", "rust",
              [("project.rust.toolchain", "rust-toolchain.toml", _rust, Status.WARN),
               ("project.rust.toolchain", "rust-toolchain", _rust, Status.WARN)]),
