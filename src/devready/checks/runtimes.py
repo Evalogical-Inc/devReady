@@ -36,6 +36,43 @@ def _gemfile(text: str) -> str | None:
     return m.group(2) if m else None
 
 
+_VERSION_VALUE = re.compile(r"\d+(?:\.\d+){0,2}")
+_PROPERTY = re.compile(r"<([A-Za-z0-9_.-]{1,60})>\s*([^<>\s]{1,40})\s*</\1\s*>")
+_PROPERTY_REF = re.compile(r"\$\{([A-Za-z0-9_.-]{1,60})\}")
+_POM_RELEASE = re.compile(
+    r"<maven\.compiler\.release>\s*([^<]{1,40}?)\s*</maven\.compiler\.release>"
+)
+_POM_SOURCE = re.compile(
+    r"<maven\.compiler\.(?:source|target)>\s*([^<]{1,40}?)\s*</maven\.compiler\.(?:source|target)>"
+)
+_POM_PLUGIN_RELEASE = re.compile(r"<release>\s*([^<]{1,40}?)\s*</release>")
+
+
+def _pom_java(text: str) -> str | None:
+    """A pom.xml Java target as a minimum (`>=17`), or an unresolved ${property}.
+
+    Line-based literals only: no XML parser, so no entity expansion, and a hostile file can only
+    contribute a version token or nothing. Properties are resolved only within the same file;
+    an unresolved `${property}` is returned untouched so `_compare` reports skip without echoing
+    it. `release` is a compiler target, so a newer JDK satisfies it.
+    """
+    props = dict(_PROPERTY.findall(text))
+    m = _POM_RELEASE.search(text) or _POM_SOURCE.search(text)
+    if m is None and "maven-compiler-plugin" in text:
+        m = _POM_PLUGIN_RELEASE.search(text)
+    if m is None:
+        return None
+    value = m.group(1).strip()
+    for _ in range(3):  # follow a short ${property} chain, but only inside this file
+        ref = _PROPERTY_REF.fullmatch(value)
+        if ref is None or ref.group(1) not in props:
+            break
+        value = props[ref.group(1)].strip()
+    if _VERSION_VALUE.fullmatch(value):
+        return f">={value}"
+    return value if _PROPERTY_REF.fullmatch(value) else None
+
+
 def _rust(text: str) -> str | None:
     m = re.search(r"^\s*channel\s*=\s*[\"']([^\"']*)[\"']", text, re.M)
     return m.group(1) if m else text.strip().split("\n", 1)[0] or None
@@ -65,7 +102,8 @@ def _pkg_manager(name: str) -> Callable[[str], str | None]:
     return extract
 
 
-# key -> (title, exe, version args, docs, .tool-versions name, [(id, file, extractor, miss)])
+# key -> (title, exe, version args, docs, .tool-versions name,
+#         [(id, file, extractor, miss[, result title])])
 RUNTIMES: dict[str, tuple] = {
     "go": ("Go", "go", ("version",), "https://go.dev/doc/install", "golang",
            [("project.go.mod", "go.mod", _go_mod, Status.FAIL)]),
@@ -73,7 +111,9 @@ RUNTIMES: dict[str, tuple] = {
              [("project.ruby.pin", ".ruby-version", _first_version, Status.WARN),
               ("project.ruby.gemfile", "Gemfile", _gemfile, Status.WARN)]),
     "java": ("Java", "java", ("-version",), "https://adoptium.net/", "java",
-             [("project.java.pin", ".java-version", _first_version, Status.WARN)]),
+             [("project.java.pin", ".java-version", _first_version, Status.WARN),
+              ("project.java.maven", "pom.xml", _pom_java, Status.FAIL,
+               "Java target (Maven)")]),
     "rust": ("Rust", "rustc", ("--version",), "https://rustup.rs/", "rust",
              [("project.rust.toolchain", "rust-toolchain.toml", _rust, Status.WARN),
               ("project.rust.toolchain", "rust-toolchain", _rust, Status.WARN)]),
@@ -96,22 +136,22 @@ def check_runtimes(
     tv_pins = {p[0]: p[1] for line in tv.splitlines() if len(p := line.split("#")[0].split()) >= 2}
     out: list[Result] = []
     for key, (title, exe, args, docs, tv_name, pins) in runtimes.items():
-        found: list[tuple[str, str, str, Status]] = []
-        for cid, fname, extract, miss in pins:
+        found: list[tuple[str, str, str, Status, str]] = []
+        for pin in pins:
+            cid, fname, extract, miss, *name = pin
             text = _read(root / fname)
             if text is not None and (spec := extract(text)):
-                found.append((cid, fname, spec, miss))
+                found.append((cid, fname, spec, miss, name[0] if name else f"{title} pin"))
                 break
         if tv_name in tv_pins:
             found.append((f"project.{key}.tool_versions", ".tool-versions", tv_pins[tv_name],
-                          Status.WARN))  # fmt: skip
+                          Status.WARN, f"{title} pin"))  # fmt: skip
         if not found:
             continue
         res, ver = tool(f"{key}.version", title, exe, docs, args)
         out.append(res)
         v = parse_version(ver) if ver else None
         out += [
-            _compare(c, f"{title} pin", src, spec, v, miss, src, key)
-            for c, src, spec, miss in found
+            _compare(c, label, src, spec, v, miss, src, key) for c, src, spec, miss, label in found
         ]
     return out
