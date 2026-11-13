@@ -1,6 +1,9 @@
 """Static, beginner-friendly explanations per check id (used by `devready explain`)."""
 
 EXPLANATIONS = {
+    "deno.version": "Deno CLI; checked only when .dvmrc or .tool-versions pins it.",
+    "project.deno.pin": ".dvmrc pins Deno for this project. A mismatch is a warning.",
+    "project.deno.tool_versions": ".tool-versions (asdf/mise) pins Deno for this project.",
     "python.version": "The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked.",
     "git.version": "Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads",
     "node.version": "Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks.",
