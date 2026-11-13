@@ -7,6 +7,7 @@ from devready.checks.config import check_config, load_config
 from devready.checks.extras import check_disk, check_docker, check_git_identity
 from devready.checks.health import check_health
 from devready.checks.platform_checks import check_platform
+from devready.checks.policy import check_policy
 from devready.checks.project import check_project
 from devready.checks.python_check import check_python
 from devready.checks.runtimes import check_runtimes
@@ -32,12 +33,17 @@ def machine_checks(root: Path) -> tuple[list[Result], dict[str, str | None]]:
 
 
 def project_checks(
-    root: Path, versions: dict[str, str | None], machine: Sequence[Result] = ()
+    root: Path,
+    versions: dict[str, str | None],
+    machine: Sequence[Result] = (),
+    policy: dict | None = None,
 ) -> list[Result]:
     """Checks that read files in `root`: Python/.venv, pins, health, Docker files, platform, config.
 
     `machine` results (if any) are placed right after Python, the order users know. Everything
-    returned is filtered by the `skip` list in root's `.devready.json`.
+    returned is filtered by the `skip` lists in root's `.devready.json` and in `policy`. When a
+    policy is given, its requirement results are appended and cannot be filtered by either skip
+    list. A policy applies to every package, but its `policy.*` results are reported once.
     """
     cfg, cfg_error = load_config(root)
     py_result, py_version = check_python(root)
@@ -46,13 +52,18 @@ def project_checks(
     results += check_runtimes(root) + check_health(root)
     results += check_docker(root) + check_platform(root)
     results += [cfg_error] if cfg_error else check_config(cfg, node, py_version)
-    skip = (cfg or {}).get("skip", [])
-    return [r for r in results if not matches(r.check_id, skip)]
+    results = [r for r in results if not matches(r.check_id, (cfg or {}).get("skip", []))]
+    if policy is None:
+        return results
+    results = [r for r in results if not matches(r.check_id, policy.get("skip", []))]
+    return results + check_policy(policy, {**versions, "python": py_version})
 
 
-def run_checks(root: Path) -> list[Result]:
+def run_checks(root: Path, policy: dict | None = None) -> list[Result]:
     machine, versions = machine_checks(root)
-    return project_checks(root, versions, machine)
+    if policy is None:
+        return project_checks(root, versions, machine)
+    return project_checks(root, versions, machine, policy)
 
 
 # Results about the machine that project files only trigger: with --recursive, an identical one
@@ -63,19 +74,31 @@ MACHINE_IDS = {
 }  # fmt: skip
 
 
-def run_recursive(root: Path) -> tuple[list[tuple[str, list[Result]]], int]:
+def run_recursive(
+    root: Path, policy: dict | None = None
+) -> tuple[list[tuple[str, list[Result]]], int]:
     """Machine-wide checks once (reported under "."), then project checks once per package.
 
+    A `policy` applies to every package (its `skip` list filters each one), while its own
+    requirements are machine-wide and therefore reported once, under ".".
     Checks at most MAX_PACKAGES packages; also returns how many were found, so callers can say so.
     """
     # ponytail: `docker` still runs once per package with Docker files; cache it if that is slow.
     packages = discover_packages(root)
     machine, versions = machine_checks(root)
+    policy_skip = (policy or {}).get("skip", [])
     seen: set[tuple] = set()
     out = []
     for p in packages[:MAX_PACKAGES]:
+        machine_here = machine if p == "." else ()
+        if p == "." and policy is not None:
+            checks = project_checks(root / p, versions, machine_here, policy)
+        else:
+            checks = project_checks(root / p, versions, machine_here)
         kept = []
-        for r in project_checks(root / p, versions, machine if p == "." else ()):
+        for r in checks:
+            if p != "." and matches(r.check_id, policy_skip):  # policy applies to every package
+                continue
             key = (r.check_id, r.status, r.summary)
             if r.check_id in MACHINE_IDS and key in seen:
                 continue

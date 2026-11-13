@@ -22,6 +22,9 @@ inputs:
   recursive:
     description: "true to also check each workspace package (monorepos). A baseline must then come from a --recursive run."
     default: "false"
+  policy:
+    description: Path to an org policy JSON file (one minimum toolchain for every repo). Its policy.* results cannot be skipped by a repo's .devready.json.
+    default: ""
   output:
     description: Also save the report to this file, e.g. `devready.sarif` for `github/codeql-action/upload-sarif`.
     default: ""
@@ -48,6 +51,7 @@ runs:
         DR_BASELINE: ${{ inputs.baseline }}
         DR_OUTPUT: ${{ inputs.output }}
         DR_RECURSIVE: ${{ inputs.recursive }}
+        DR_POLICY: ${{ inputs.policy }}
       run: |
         set -euo pipefail
         python -m pip install --quiet "devready-cli${DR_VERSION:+==$DR_VERSION}"
@@ -56,6 +60,7 @@ runs:
         for id in $DR_SKIP; do args+=(--skip "$id"); done
         if [ -n "$DR_BASELINE" ]; then args+=(--baseline "$DR_BASELINE"); fi
         if [ "$DR_RECURSIVE" = "true" ]; then args+=(--recursive); fi
+        if [ -n "$DR_POLICY" ]; then args+=(--policy "$DR_POLICY"); fi
         if [ -n "$DR_OUTPUT" ]; then
           python -m devready "${args[@]}" | tee "$DR_OUTPUT"
         else

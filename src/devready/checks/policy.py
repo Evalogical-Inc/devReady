@@ -126,3 +126,15 @@ def check_policy(
         else:
             out.append(Result(cid, name, Status.PASS, f"all {len(wanted)} variables are set"))
     return out
+
+
+# Starter for `devready init --policy`: realistic minimums, not empty, so it is a usable example.
+TEMPLATE = json.dumps(
+    {
+        "policy_version": 1,
+        "require": {"node": ">=20", "python": ">=3.11", "git": ">=2.40"},
+        "skip": [],
+        "env": [],
+    },
+    indent=2,
+)

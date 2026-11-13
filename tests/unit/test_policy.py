@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from devready.checks.policy import REQUIRABLE, check_policy, load_policy
+from devready.cli import main
 from devready.explain import EXPLANATIONS
 from devready.models import Result, Status
 
@@ -146,3 +147,89 @@ def test_empty_policy_has_no_results():
 def test_every_policy_id_is_explained():
     ids = {f"policy.{key}.require" for key in REQUIRABLE} | {"policy.env.required", "policy.file"}
     assert ids <= set(EXPLANATIONS)
+
+
+# --- CLI wiring: --policy FILE and DEVREADY_POLICY -----------------------------------------
+
+
+def file_at(root, rel, data):
+    path = root / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(data if isinstance(data, str) else json.dumps(data), encoding="utf-8")
+    return path
+
+
+def run_json(capsys, project, *args):
+    code = main(["check", "--format", "json", "--project", str(project), *args])
+    return code, json.loads(capsys.readouterr().out)
+
+
+def ids_of(data):
+    return [r["check_id"] for r in data["results"]]
+
+
+def test_flag_reports_a_policy_requirement_and_exit_code(capsys, tmp_path):
+    path = file_at(tmp_path, "org.json", {"policy_version": 1, "require": {"python": ">=999"}})
+    code, data = run_json(capsys, tmp_path, "--policy", str(path))
+    [result] = [r for r in data["results"] if r["check_id"] == "policy.python.require"]
+    assert result["status"] == "fail" and code == 1
+
+
+def test_devready_policy_env_var_holds_a_path(capsys, tmp_path, monkeypatch):
+    path = file_at(tmp_path, "org.json", {"policy_version": 1, "require": {"python": "*"}})
+    monkeypatch.setenv("DEVREADY_POLICY", str(path))
+    code, data = run_json(capsys, tmp_path)
+    assert code == 0
+    pairs = [(r["check_id"], r["status"]) for r in data["results"]]
+    assert ("policy.python.require", "pass") in pairs
+
+
+def test_flag_wins_over_the_env_var(capsys, tmp_path, monkeypatch):
+    missing = tmp_path / "nope.json"
+    good = file_at(tmp_path, "org.json", {"policy_version": 1, "require": {"python": "*"}})
+    monkeypatch.setenv("DEVREADY_POLICY", str(missing))
+    _, data = run_json(capsys, tmp_path, "--policy", str(good))
+    assert "policy.file" not in ids_of(data)
+    assert "policy.python.require" in ids_of(data)
+
+
+def test_invalid_policy_is_one_error_and_never_echoed(capsys, tmp_path):
+    path = file_at(tmp_path, "org.json", "{" + HOSTILE)
+    code, data = run_json(capsys, tmp_path, "--policy", str(path))
+    assert ids_of(data).count("policy.file") == 1 and code == 0
+    assert "IGNORE" not in json.dumps(data) and "org.json" not in json.dumps(data)
+
+
+def test_repo_config_skip_cannot_hide_policy_results(capsys, tmp_path):
+    file_at(tmp_path, ".devready.json", '{"skip": ["policy", "python"]}')
+    path = file_at(tmp_path, "org.json", {"policy_version": 1, "require": {"python": ">=999"}})
+    code, data = run_json(capsys, tmp_path, "--policy", str(path))
+    assert code == 1 and "policy.python.require" in ids_of(data)
+
+
+def test_policy_skip_hides_project_checks_but_not_its_own_results(capsys, tmp_path):
+    policy = {"policy_version": 1, "skip": ["python.version"], "require": {"python": ">=999"}}
+    code, data = run_json(capsys, tmp_path, "--policy", str(file_at(tmp_path, "org.json", policy)))
+    assert code == 1
+    assert "python.version" not in ids_of(data) and "policy.python.require" in ids_of(data)
+
+
+def test_recursive_policy_is_reported_once_under_the_root(capsys, tmp_path):
+    file_at(tmp_path, "package.json", json.dumps({"workspaces": ["packages/*"]}))
+    file_at(tmp_path, "packages/web/package.json", "{}")
+    policy = {"policy_version": 1, "skip": ["python.version"], "require": {"python": ">=999"}}
+    path = file_at(tmp_path, "org.json", policy)
+    argv = ["check", "--recursive", "--format", "json", "--project", str(tmp_path)]
+    code = main([*argv, "--policy", str(path)])
+    projects = {p["path"]: ids_of(p) for p in json.loads(capsys.readouterr().out)["projects"]}
+    assert code == 1
+    assert "policy.python.require" in projects["."]
+    assert sum(ids.count("policy.python.require") for ids in projects.values()) == 1
+    assert not any("python.version" in ids for ids in projects.values())  # skip in every package
+
+
+def test_init_policy_prints_a_valid_starter(capsys, tmp_path):
+    assert main(["init", "--policy"]) == 0
+    path = write(tmp_path / "org.json", capsys.readouterr().out)
+    policy, error = load_policy(path)
+    assert error is None and policy is not None and policy["policy_version"] == 1

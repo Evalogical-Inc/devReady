@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- `check --recursive` checks every workspace package (package.json `workspaces`, `pnpm-workspace.yaml`, else folders with pin files up to 3 levels deep). Machine-wide checks run once, project checks run per package; text output gets one section per package, JSON uses the documented `docs/schema-multi.json` shape, JUnit gets one suite per package, SARIF paths include the package, and `--baseline` is keyed by package. The GitHub Action (`recursive`) and the MCP tool take the same option (#43).
+- `check --policy FILE` (or the `DEVREADY_POLICY` environment variable, which holds a path) applies one org minimum toolchain: required tools and versions as `policy.<tool>.require` (`"*"` means "installed, any version") and required environment variable names as `policy.env.required`. A policy failure exits `1`, a repo's `.devready.json` cannot skip `policy.*` results, and with `--recursive` a policy applies to every package. The GitHub Action gains a `policy` input, and `devready init --policy` prints a starter file (#44).
+- Docs: a "Using DevReady across an organization" guide ([docs/org-policy.md](docs/org-policy.md)).
 - Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
 
 ## 1.3.0 - 2026-11-04

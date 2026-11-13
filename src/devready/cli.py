@@ -11,6 +11,7 @@ from pathlib import Path
 
 from devready import __version__
 from devready.baseline import diff, load_baseline, load_project_baselines
+from devready.checks.policy import load_policy
 from devready.formats import fix_plan, junit, junit_projects, sarif_projects
 from devready.models import Result, Status
 from devready.runner import matches, report, report_projects, run_checks, run_recursive
@@ -174,11 +175,21 @@ def main(argv: list[str] | None = None) -> int:
         help="also check each workspace package (package.json workspaces, pnpm-workspace.yaml, "
         "else folders with pin files up to 3 levels deep); JSON: docs/schema-multi.json",
     )
+    check.add_argument(
+        "--policy",
+        metavar="FILE",
+        default=None,
+        help="org policy JSON (or set DEVREADY_POLICY) with one minimum toolchain for every "
+        "repo; adds policy.* results that .devready.json cannot skip",
+    )
     fix = sub.add_parser("fix", help="print suggested fixes (never runs them)")
     fix.add_argument("--plan", action="store_true", help="required: list steps without running")
     explain = sub.add_parser("explain", help="explain what a check id means")
     explain.add_argument("check_id")
-    sub.add_parser("init", help="print a starter .devready.json (does not write it)")
+    init = sub.add_parser("init", help="print a starter .devready.json (does not write it)")
+    init.add_argument(
+        "--policy", action="store_true", help="print a starter org policy file instead"
+    )
     sub.add_parser("mcp", help="run as an MCP server over stdio")
     for p in (check, fix):
         p.add_argument("--project", default=".", help="directory whose version pins to compare")
@@ -197,8 +208,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "init":
         from devready.checks.config import TEMPLATE
+        from devready.checks.policy import TEMPLATE as POLICY_TEMPLATE
 
-        print(TEMPLATE)
+        print(POLICY_TEMPLATE if args.policy else TEMPLATE)
         return EXIT_OK
 
     if args.command == "explain":
@@ -224,8 +236,19 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_USAGE
     # (path, results) pairs: one per package with --recursive, else one with path "".
     recursive = getattr(args, "recursive", False)  # `fix` has no --recursive
+    policy = policy_error = None
+    if args.command == "check":  # `fix --plan` does not take --policy
+        policy_path = args.policy or os.environ.get("DEVREADY_POLICY")
+        if policy_path:  # the path itself is never reported back
+            policy, policy_error = load_policy(Path(policy_path))
     try:
-        projects, found = run_recursive(root) if recursive else ([("", run_checks(root))], 1)
+        if recursive:
+            projects, found = (
+                run_recursive(root, policy) if policy is not None else run_recursive(root)
+            )
+        else:
+            results = run_checks(root, policy) if policy is not None else run_checks(root)
+            projects, found = [("", results)], 1
     except Exception as e:  # noqa: BLE001 - last-resort guard; never leak raw output
         print(f"devready: internal error ({type(e).__name__})", file=sys.stderr)
         return EXIT_INTERNAL
@@ -235,6 +258,8 @@ def main(argv: list[str] | None = None) -> int:
 
     projects = [(p, [r for r in rs if _selected(r.check_id, args.only, args.skip)])
                 for p, rs in projects]  # fmt: skip
+    if policy_error is not None:  # shown once (under "." with --recursive), even with --only
+        projects = [(p, [*rs, policy_error] if p in ("", ".") else rs) for p, rs in projects]
 
     if args.command == "fix":
         print(fix_plan(projects[0][1]))
