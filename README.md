@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🩺 DevReady
+<img src="https://raw.githubusercontent.com/Evalogical-Inc/devReady/main/docs/DevReady-Logo.png" alt="DevReady" width="420"/>
 
 ### "Works on my machine" - finally answered before it wastes your afternoon.
 
