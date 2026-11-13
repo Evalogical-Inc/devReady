@@ -1,6 +1,9 @@
 """Static, beginner-friendly explanations per check id (used by `devready explain`)."""
 
 EXPLANATIONS = {
+    "terraform.version": "Terraform CLI; checked only when .terraform-version or .tool-versions pins it.",
+    "project.terraform.pin": ".terraform-version pins Terraform for this project. A mismatch is a warning.",
+    "project.terraform.tool_versions": ".tool-versions (asdf/mise) pins Terraform for this project.",
     "python.version": "The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked.",
     "git.version": "Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads",
     "node.version": "Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks.",

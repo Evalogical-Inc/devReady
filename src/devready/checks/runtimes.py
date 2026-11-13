@@ -67,6 +67,9 @@ def _pkg_manager(name: str) -> Callable[[str], str | None]:
 
 # key -> (title, exe, version args, docs, .tool-versions name, [(id, file, extractor, miss)])
 RUNTIMES: dict[str, tuple] = {
+    "terraform": ("Terraform", "terraform", ("version",),
+              "https://developer.hashicorp.com/terraform/install", "terraform",
+              [("project.terraform.pin", ".terraform-version", _first_version, Status.WARN)]),
     "go": ("Go", "go", ("version",), "https://go.dev/doc/install", "golang",
            [("project.go.mod", "go.mod", _go_mod, Status.FAIL)]),
     "ruby": ("Ruby", "ruby", ("--version",), "https://www.ruby-lang.org/en/downloads/", "ruby",
