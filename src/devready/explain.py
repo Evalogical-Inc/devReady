@@ -30,6 +30,7 @@ EXPLANATIONS = {
     "project.ruby.gemfile": "A literal ruby declaration in Gemfile pins Ruby when .ruby-version has no readable version. Reads quoted major.minor or major.minor.patch versions, with optional trailing comments; never evaluates Ruby. A mismatch is a warning.",
     "project.ruby.tool_versions": ".tool-versions (asdf/mise) pins Ruby for this project.",
     "project.java.pin": ".java-version pins Java for this project (jenv, mise).",
+    "project.java.maven": "pom.xml declares the Java release, compiler source/target, or the compiler plugin's <release>. The installed Java must be at least that version; ${property} is resolved only from the same file.",
     "project.java.tool_versions": ".tool-versions (asdf/mise) pins Java for this project.",
     "project.rust.toolchain": "rust-toolchain(.toml) pins the Rust channel. Named channels such as stable are reported as not evaluated.",
     "project.rust.tool_versions": ".tool-versions (asdf/mise) pins Rust for this project.",

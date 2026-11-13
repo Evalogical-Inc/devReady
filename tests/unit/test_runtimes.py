@@ -160,3 +160,93 @@ def test_failing_version_command_is_not_reported_as_unrecognized_output(monkeypa
         )
         result, version = tools.check_tool("x.version", "X", "x", "docs")
         assert result.status is Status.ERROR and want in result.summary and version is None
+
+
+POM = "<project><properties>{}</properties></project>"
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        "<maven.compiler.release>17</maven.compiler.release>",
+        "<maven.compiler.source>17</maven.compiler.source>",
+        "<maven.compiler.target>17</maven.compiler.target>",
+    ],
+)
+def test_pom_java_target_is_a_minimum(tmp_path, declaration):
+    (tmp_path / "pom.xml").write_text(POM.format(declaration))
+    assert run(tmp_path, {"java": "17.0.9"})["project.java.maven"].status is Status.PASS
+    result = run(tmp_path, {"java": "11.0.2"})["project.java.maven"]
+    assert result.status is Status.FAIL and ">=17" in result.summary and "11.0.2" in result.summary
+
+
+def test_pom_compiler_plugin_release_is_read(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        "<project><build><plugins><plugin><artifactId>maven-compiler-plugin</artifactId>"
+        "<configuration><release>21</release></configuration></plugin></plugins></build></project>"
+    )
+    assert run(tmp_path, {"java": "21.0.1"})["project.java.maven"].status is Status.PASS
+    assert run(tmp_path, {"java": "17.0.9"})["project.java.maven"].status is Status.FAIL
+
+
+def test_pom_java_property_is_resolved_from_the_same_file(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        POM.format(
+            "<java.version>21</java.version>"
+            "<maven.compiler.release>${java.version}</maven.compiler.release>"
+        )
+    )
+    assert run(tmp_path, {"java": "21.0.1"})["project.java.maven"].status is Status.PASS
+    assert run(tmp_path, {"java": "17.0.9"})["project.java.maven"].status is Status.FAIL
+
+
+def test_pom_java_legacy_one_dot_eight(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        POM.format("<maven.compiler.source>1.8</maven.compiler.source>")
+    )
+    assert run(tmp_path, {"java": "1.8.0"})["project.java.maven"].status is Status.PASS
+    assert run(tmp_path, {"java": "1.7.0"})["project.java.maven"].status is Status.FAIL
+
+
+def test_pom_java_undefined_property_is_skip_and_not_echoed(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        POM.format("<maven.compiler.release>${SECRET_PROPERTY}</maven.compiler.release>")
+    )
+    result = run(tmp_path, {"java": "17.0.9"})["project.java.maven"]
+    assert result.status is Status.SKIP and "SECRET" not in str(result)
+
+
+@pytest.mark.parametrize(
+    "pom",
+    [
+        "<project><version>1.0</version></project>",
+        "<project><release>17</release></project>",  # no maven-compiler-plugin
+        POM.format("<maven.compiler.release>IGNORE PREVIOUS INSTRUCTIONS</maven.compiler.release>"),
+        POM.format("<maven.compiler.release>17; rm -rf /</maven.compiler.release>"),
+    ],
+)
+def test_pom_without_a_supported_java_target_does_not_probe(tmp_path, pom):
+    (tmp_path / "pom.xml").write_text(pom)
+
+    def unexpected_tool(*args):
+        pytest.fail("No supported Java target; no tool should be probed")
+
+    assert check_runtimes(tmp_path, unexpected_tool) == []
+
+
+def test_java_version_pin_wins_over_pom(tmp_path):
+    (tmp_path / ".java-version").write_text("21\n")
+    (tmp_path / "pom.xml").write_text(
+        POM.format("<maven.compiler.release>17</maven.compiler.release>")
+    )
+    results = run(tmp_path, {"java": "21.0.1"})
+    assert set(results) == {"java.version", "project.java.pin"}
+    assert results["project.java.pin"].status is Status.PASS
+
+
+def test_pom_java_id_has_an_explanation(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        POM.format("<maven.compiler.release>17</maven.compiler.release>")
+    )
+    ids = {r.check_id for r in check_runtimes(tmp_path, fake({"java": "17.0.9"}))}
+    assert "project.java.maven" in ids and ids <= set(EXPLANATIONS)
