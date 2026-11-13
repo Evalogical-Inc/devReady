@@ -55,9 +55,12 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.ruby.tool_versions` | .tool-versions (asdf/mise) pins Ruby for this project. |
 | `project.rust.tool_versions` | .tool-versions (asdf/mise) pins Rust for this project. |
 | `project.rust.toolchain` | rust-toolchain(.toml) pins the Rust channel. Named channels such as stable are reported as not evaluated. |
+| `project.terraform.pin` | .terraform-version pins Terraform for this project. A mismatch is a warning. |
+| `project.terraform.tool_versions` | .tool-versions (asdf/mise) pins Terraform for this project. |
 | `project.yarn.pin` | package.json packageManager pins the Yarn version (corepack enable can install it). |
 | `project.yarn.tool_versions` | .tool-versions (asdf/mise) pins Yarn for this project. |
 | `python.version` | The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked. |
 | `ruby.version` | Ruby interpreter; checked only when the project pins it (.ruby-version, Gemfile or .tool-versions). |
 | `rust.version` | Rust compiler (rustc); checked only when the project has a rust-toolchain file or pin. |
+| `terraform.version` | Terraform CLI; checked only when .terraform-version or .tool-versions pins it. |
 | `yarn.version` | Yarn package manager; checked only when package.json packageManager names yarn. |

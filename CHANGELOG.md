@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Check Terraform pins from `.terraform-version` and `.tool-versions`; warn on mismatches.
 - Add a `devready` pre-commit hook that runs `devready check` at the pre-push stage, including when no files match. Existing CLI options can be passed through `args` (#32).
 - New `devready check --recursive` for monorepos (#43). Packages come from `package.json` `workspaces` and `pnpm-workspace.yaml`, or from folders with pin files up to 3 levels deep. Tool versions, git identity and disk space are checked once; pins, health, Docker files and `.devready.json` per package. Text output has a section per package, `--format json` follows the new `docs/schema-multi.json`, SARIF and JUnit name the package, and `--baseline` compares a saved `--recursive` report package by package. The GitHub Action has a `recursive` input and the MCP tool a `recursive` argument. Up to 200 packages; symlinks are never followed. Output without the flag is unchanged.
 - Results list `disk.space` right after `git.identity` instead of just before the config results. Ids and statuses are unchanged.
