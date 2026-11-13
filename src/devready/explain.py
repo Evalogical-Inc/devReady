@@ -1,6 +1,7 @@
 """Static, beginner-friendly explanations per check id (used by `devready explain`)."""
 
 EXPLANATIONS = {
+    "project.java.sdkman": ".sdkmanrc pins Java for SDKMAN. The vendor suffix is ignored; .java-version takes precedence. A mismatch is a warning.",
     "python.version": "The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked.",
     "git.version": "Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads",
     "node.version": "Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks.",
@@ -21,7 +22,7 @@ EXPLANATIONS = {
     "disk.space": "Warns below 1 GB free where the project lives; installs and builds can fail when the disk is full.",
     "go.version": "Go toolchain; checked only when the project has a go.mod or a golang line in .tool-versions.",
     "ruby.version": "Ruby interpreter; checked only when the project pins it (.ruby-version, Gemfile or .tool-versions).",
-    "java.version": "Java runtime; checked only when the project pins it (.java-version or .tool-versions).",
+    "java.version": "Java runtime; checked only when the project pins it (.java-version, .sdkmanrc or .tool-versions).",
     "rust.version": "Rust compiler (rustc); checked only when the project has a rust-toolchain file or pin.",
     "dotnet.version": "The .NET SDK; checked only when the project has a global.json or a dotnet pin.",
     "project.go.mod": "The go directive in go.mod is the minimum Go version. A lower toolchain fails the check.",
