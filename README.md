@@ -129,7 +129,10 @@ devready check --only project --skip project.ports   # filter by id or prefix
 devready fix --plan               # suggested steps only; never runs them
 devready check --format json > baseline.json   # save a snapshot (commit it for a team baseline)
 devready check --baseline baseline.json          # show only what changed; fail only on new/worse failures
+devready check --recursive        # also check every workspace package (monorepos)
+devready check --policy org.json  # one org minimum toolchain for every repo (or DEVREADY_POLICY)
 devready init > .devready.json    # optional config: skip ids, require node/python, required env names
+devready init --policy > org.json # starter org policy: required tools/versions and env names
 devready mcp                      # run as an MCP server over stdio
 devready --version
 ```
@@ -172,7 +175,7 @@ devready --version
 ```yaml
 - uses: Evalogical-Inc/devReady@v1.3.0
   with:
-    skip: project.ports                  # optional; also: only, format, project, version
+    skip: project.ports    # optional; also: only, format, project, recursive, policy, version
 ```
 
 To show findings in GitHub code scanning, save a SARIF report and upload it. Pin findings point at the file that declares the pin (`package.json`, `.nvmrc`, `go.mod`, ...); tool-only findings have no file.
@@ -189,6 +192,21 @@ To show findings in GitHub code scanning, save a SARIF report and upload it. Pin
 ```
 
 The job fails when a declared requirement is unmet (`fail`). It installs `devready-cli` from PyPI, so flags added after your installed release (`--only`, `--skip`, junit/sarif) need a release that includes them; set `version:` to pin one.
+
+## Use it across an organization
+
+Platform teams can keep one minimum toolchain outside each repo's `.devready.json`:
+
+```json
+{"policy_version": 1, "require": {"node": ">=20", "git": ">=2.40", "docker": "*"},
+ "skip": ["platform.autocrlf"], "env": ["NPM_TOKEN"]}
+```
+
+```bash
+devready check --policy org.json   # or DEVREADY_POLICY=org.json
+```
+
+Policy failures exit `1`, a project's `.devready.json` cannot skip them, and with `--recursive` the policy applies to every package. The Action takes a `policy` input, and `devready init --policy` prints a starter. Full guide: [docs/org-policy.md](docs/org-policy.md).
 
 ## Use it with pre-commit
 
@@ -270,7 +288,9 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 
 ## Limitations
 
-- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon, compose file validity and image platform (arm64 vs amd64) mismatch (only when the project has a Dockerfile/compose file), free disk space, Windows long paths, PowerShell policy, line endings, WSL version and Docker Desktop engine, macOS/Linux build tools, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use.
+- Checks today: Python, Git (+ identity set), Node.js, npm, project pins (`.nvmrc`, `.node-version`, `.python-version`, `.tool-versions`, `package.json` engines, `pyproject.toml` requires-python), `.env.example` vs `.env` key names, Docker CLI + daemon, compose file validity and image platform (arm64 vs amd64) mismatch (only when the project has a Dockerfile/compose file), free disk space, Windows long paths, PowerShell policy, line endings, WSL version and Docker Desktop engine, macOS/Linux build tools, and (only when the project declares them) Go, Ruby, Java, Rust, .NET, pnpm, Yarn and Bun pins, `.env` not git-ignored, `node_modules` vs lockfile, and declared ports already in use, plus org-wide required tools and env names with `--policy`.
+- `--recursive` follows `package.json`/`pnpm-workspace.yaml` patterns (`dir`, `dir/*`, `dir/**`) or scans up to 3 levels deep for pin files, skips `node_modules`, `.git`, `.venv`, `venv`, `dist` and `build`, and checks at most 200 packages.
+- An org policy (`--policy`) is a local file only; DevReady never fetches a remote URL. `"*"` means "installed", not "up to date".
 - The version-range matcher covers common npm/PEP 440 syntax; pre-releases and exotic ranges report `skip` rather than guess.
 - The Python version compared is the project's (`.venv`/`venv`, else the first `python` on PATH), and the result names the interpreter checked. DevReady does not look at other virtualenv locations (poetry, conda, pyenv shims).
 
@@ -282,8 +302,10 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [x] Platform-specific checks (Windows, macOS/Linux build tools, WSL)
 - [x] Docker compose validity, image platform, Docker Desktop engine
 - [x] Exact version-switch commands in suggestions (first: `fnm`)
-- [ ] Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
-- [ ] Homebrew tap (#31) and a pre-commit hook (#32)
+- [x] Monorepo `--recursive` (#43) and org `--policy` file (#44)
+- [x] Pre-commit hook (#32)
+- [ ] VS Code extension (#45; see [ROADMAP.md](ROADMAP.md))
+- [ ] Homebrew tap (#31)
 - [ ] Standalone binaries
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.

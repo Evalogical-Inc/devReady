@@ -31,7 +31,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Distribution**
 - [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
-- [ ] pre-commit hook, `.pre-commit-hooks.yaml` (#32).
+- [x] pre-commit hook, `.pre-commit-hooks.yaml` (#32).
 - [ ] Standalone binaries (no design yet).
 
 **Quality**
@@ -41,7 +41,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 ## Planned: team features
 
-Monorepo `--recursive` (#43), org `--policy` file (#44), VS Code extension (#45). The Docker checks from the same plan have shipped. Design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
+VS Code extension (#45). Monorepo `--recursive` (#43) and the org `--policy` file (#44) from the same plan have shipped, as have the Docker checks; design and PR breakdown: [docs/plans/features-5-8.md](docs/plans/features-5-8.md).
 
 ## Decided against
 

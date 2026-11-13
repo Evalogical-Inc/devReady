@@ -1,7 +1,7 @@
 # Plan: team-facing features (5-8)
 
-Status: 8 (Docker) is done; 5-7 are proposed and tracked in #43, #44 and #45. Each numbered
-step below is one PR.
+Status: 5 (monorepo), 6 (policy) and 8 (Docker) are done; 7 (VS Code) is proposed and tracked
+in #45. Each numbered step below is one PR.
 All of it keeps the [principles](../../ROADMAP.md): read-only, local-first, zero runtime
 dependencies, Python >= 3.10, never print env values or raw file/command output, no network.
 Stability rules: [versioning.md](../versioning.md). Everything here is a 1.x minor unless noted.
@@ -13,7 +13,7 @@ packages; 7 (VS Code, most visible) can start in parallel.
 
 ## 5. Monorepo support: `devready check --recursive`
 
-**Tracking:** #43.
+**Tracking:** #43. **Status: done.**
 
 **Why:** teams with pnpm/npm workspaces or several Python packages run DevReady once per folder
 today, or not at all.
@@ -49,7 +49,7 @@ just another package with path `"."`).
 
 ## 6. Org policy file: `devready check --policy FILE`
 
-**Tracking:** #44.
+**Tracking:** #44. **Status: done.** Guide: [org-policy.md](../org-policy.md).
 
 **Why:** platform teams want one minimum toolchain for every repo ("Git >= 2.40, Node >= 20,
 Docker required") without editing each repo's `.devready.json`. This is the feature companies

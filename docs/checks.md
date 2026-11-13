@@ -3,6 +3,8 @@
 Every check id DevReady can emit. Ids are a public API (see [versioning.md](versioning.md)).
 `devready explain <id>` prints the same text. A test fails if an id is missing from this file.
 
+With `--recursive`, the same ids are reported per package (JSON shape: [schema-multi.json](schema-multi.json)); machine-wide results appear once under the root package (`.`). `policy.*` ids come from the org policy file (`--policy` or `DEVREADY_POLICY`), see [org-policy.md](org-policy.md).
+
 | Check id | What it means |
 |---|---|
 | `bun.version` | Bun runtime and package manager; checked only when package.json packageManager names bun. |
