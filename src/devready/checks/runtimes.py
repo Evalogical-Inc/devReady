@@ -73,6 +73,37 @@ def _pom_java(text: str) -> str | None:
     return value if _PROPERTY_REF.fullmatch(value) else None
 
 
+_GRADLE_COMPAT = re.compile(
+    r"""(?:source|target)Compatibility\s*=\s*
+        (?:JavaVersion\.VERSION_(\d+)(?:_(\d+))?|["']?(\d+(?:\.\d+){0,2})["']?)
+        (?![A-Za-z0-9_.])""",
+    re.X,
+)
+_GRADLE_TOOLCHAIN = re.compile(r"JavaLanguageVersion\.of\(\s*(\d+(?:\.\d+){0,2})\s*\)")
+
+
+def _gradle_java(text: str) -> str | None:
+    """build.gradle(.kts) Java target as a minimum (`>=17`); literal declarations only.
+
+    Groovy and Kotlin are never evaluated. Comments are stripped first so a commented-out
+    declaration does not count; an unrecognized value adds no result.
+    """
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//[^\r\n]*", "", text)
+    m = _GRADLE_TOOLCHAIN.search(text)
+    if m is not None:
+        value = m.group(1)
+    else:
+        m = _GRADLE_COMPAT.search(text)
+        if m is None:
+            return None
+        if m.group(1):
+            value = f"{m.group(1)}.{m.group(2)}" if m.group(2) else m.group(1)
+        else:
+            value = m.group(3)
+    return f">={value}" if _VERSION_VALUE.fullmatch(value) else None
+
+
 def _rust(text: str) -> str | None:
     m = re.search(r"^\s*channel\s*=\s*[\"']([^\"']*)[\"']", text, re.M)
     return m.group(1) if m else text.strip().split("\n", 1)[0] or None
@@ -113,7 +144,11 @@ RUNTIMES: dict[str, tuple] = {
     "java": ("Java", "java", ("-version",), "https://adoptium.net/", "java",
              [("project.java.pin", ".java-version", _first_version, Status.WARN),
               ("project.java.maven", "pom.xml", _pom_java, Status.FAIL,
-               "Java target (Maven)")]),
+               "Java target (Maven)"),
+              ("project.java.gradle", "build.gradle", _gradle_java, Status.FAIL,
+               "Java target (Gradle)"),
+              ("project.java.gradle", "build.gradle.kts", _gradle_java, Status.FAIL,
+               "Java target (Gradle)")]),
     "rust": ("Rust", "rustc", ("--version",), "https://rustup.rs/", "rust",
              [("project.rust.toolchain", "rust-toolchain.toml", _rust, Status.WARN),
               ("project.rust.toolchain", "rust-toolchain", _rust, Status.WARN)]),
