@@ -31,6 +31,7 @@ EXPLANATIONS = {
     "project.ruby.tool_versions": ".tool-versions (asdf/mise) pins Ruby for this project.",
     "project.java.pin": ".java-version pins Java for this project (jenv, mise).",
     "project.java.maven": "pom.xml declares the Java release, compiler source/target, or the compiler plugin's <release>. The installed Java must be at least that version; ${property} is resolved only from the same file.",
+    "project.java.gradle": "build.gradle or build.gradle.kts declares sourceCompatibility/targetCompatibility or a Java toolchain. The installed Java must be at least that version; only literal declarations are read, never executed.",
     "project.java.tool_versions": ".tool-versions (asdf/mise) pins Java for this project.",
     "project.rust.toolchain": "rust-toolchain(.toml) pins the Rust channel. Named channels such as stable are reported as not evaluated.",
     "project.rust.tool_versions": ".tool-versions (asdf/mise) pins Rust for this project.",
