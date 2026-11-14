@@ -20,6 +20,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `java.version` | Java runtime; checked only when the project pins it (.java-version or .tool-versions). |
 | `node.version` | Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks. |
 | `npm.version` | npm installs JavaScript dependencies and ships with Node.js. |
+| `php.version` | PHP runtime; checked only when composer.json or .tool-versions declares it. |
 | `platform.autocrlf` | Windows only, in a git repo without .gitattributes. Unset core.autocrlf can flip line endings between Windows and Linux/macOS contributors. |
 | `platform.wsl.version` | Windows only, when the project has a Dockerfile or compose file. Reads the default distribution's version from `wsl -l -v` and warns on WSL 1, which Docker does not support. The distribution name is never shown. |
 | `platform.build_tools` | macOS/Linux, when the project has binding.gyp, setup.py, Gemfile or Cargo.toml. Native dependencies need a compiler (Xcode CLT on macOS, cc/gcc/clang and make on Linux). |
@@ -43,6 +44,8 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.node.modules` | Checked when package.json lists dependencies: node_modules must exist and not be older than a lockfile. |
 | `project.node.pin` | A .nvmrc/.node-version file says which Node the team uses. A mismatch is a warning; switch with nvm, fnm or mise. |
 | `project.node.tool_versions` | .tool-versions (asdf/mise) pins Node for this project. |
+| `project.php.composer` | composer.json declares the required PHP version range. A mismatch fails the check. |
+| `project.php.tool_versions` | .tool-versions (asdf/mise) pins PHP for this project. |
 | `project.pnpm.pin` | package.json packageManager pins the pnpm version (corepack enable can install it). |
 | `project.pnpm.tool_versions` | .tool-versions (asdf/mise) pins pnpm for this project. |
 | `project.ports.free` | Ports declared in compose files (host side), `*PORT=` lines in `.env.example`, or `--port`/`-p`/`PORT=` in `package.json` scripts, tested by connecting to localhost. A busy port may be this project already running. |
