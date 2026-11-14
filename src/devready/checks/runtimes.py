@@ -13,12 +13,42 @@ from pathlib import Path
 from devready.checks.project import _compare, _read
 from devready.checks.tools import check_tool
 from devready.models import Result, Status
-from devready.versions import parse_version
+from devready.versions import SAFE_SPEC, parse_version
 
 
 def _first_version(text: str) -> str | None:
     m = re.search(r"\d+(?:\.\d+){0,2}", text.strip().split("\n", 1)[0])
     return m.group() if m else None
+
+
+def _pubspec_sdk(text: str) -> str | None:
+    in_environment = False
+    child_indent = None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if not in_environment:
+            if re.fullmatch(r"environment:[ \t]*(?:#.*)?", line):
+                in_environment = True
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if indent == 0:
+            break
+        if child_indent is None:
+            child_indent = indent
+        if indent != child_indent:
+            continue
+        match = re.fullmatch(r"sdk:[ \t]*(.*)", stripped)
+        if not match:
+            continue
+        spec = match.group(1).split("#", 1)[0].strip()
+        if spec.startswith(("'", '"')):
+            if len(spec) < 2 or spec[-1] != spec[0]:
+                return None
+            spec = spec[1:-1]
+        return spec if SAFE_SPEC.fullmatch(spec) else None
+    return None
 
 
 def _go_mod(text: str) -> str | None:
@@ -67,6 +97,8 @@ def _pkg_manager(name: str) -> Callable[[str], str | None]:
 
 # key -> (title, exe, version args, docs, .tool-versions name, [(id, file, extractor, miss)])
 RUNTIMES: dict[str, tuple] = {
+    "dart": ("Dart", "dart", ("--version",), "https://dart.dev/get-dart", "dart",
+              [("project.dart.pubspec", "pubspec.yaml", _pubspec_sdk, Status.FAIL)]),
     "go": ("Go", "go", ("version",), "https://go.dev/doc/install", "golang",
            [("project.go.mod", "go.mod", _go_mod, Status.FAIL)]),
     "ruby": ("Ruby", "ruby", ("--version",), "https://www.ruby-lang.org/en/downloads/", "ruby",

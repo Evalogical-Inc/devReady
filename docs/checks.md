@@ -7,6 +7,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | Check id | What it means |
 |---|---|
 | `bun.version` | Bun runtime and package manager; checked only when package.json packageManager names bun. |
+| `dart.version` | Dart runtime; checked only when pubspec.yaml or .tool-versions declares it. |
 | `disk.space` | Warns below 1 GB free where the project lives; installs and builds can fail when the disk is full. |
 | `docker.backend` | Windows only, when Docker is running. Warns when Docker Desktop uses the Hyper-V engine instead of WSL 2, or is in Windows containers mode while the Dockerfile builds a Linux image. `docker info` output is never shown. |
 | `docker.cli` | Shown only when the project has a Dockerfile or compose file and the docker command is missing. |
@@ -29,6 +30,8 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.bun.pin` | package.json packageManager pins the Bun version. |
 | `project.bun.tool_versions` | .tool-versions (asdf/mise) pins Bun for this project. |
 | `project.config.file` | .devready.json is optional. With unknown keys or invalid values it is ignored entirely. Run `devready init` for a starter. |
+| `project.dart.pubspec` | pubspec.yaml declares the required Dart version range. A mismatch fails the check. |
+| `project.dart.tool_versions` | .tool-versions (asdf/mise) pins Dart for this project. |
 | `project.dotnet.global` | global.json sdk.version pins the .NET SDK for this project. |
 | `project.dotnet.tool_versions` | .tool-versions (asdf/mise) pins .NET for this project. |
 | `project.env.ignored` | Warns when .env exists but git would commit it (not ignored, or already tracked). Values are never shown. |

@@ -1,6 +1,9 @@
 """Static, beginner-friendly explanations per check id (used by `devready explain`)."""
 
 EXPLANATIONS = {
+    "dart.version": "Dart runtime; checked only when pubspec.yaml or .tool-versions declares it.",
+    "project.dart.pubspec": "pubspec.yaml declares the required Dart version range. A mismatch fails the check.",
+    "project.dart.tool_versions": ".tool-versions (asdf/mise) pins Dart for this project.",
     "python.version": "The Python a developer gets in the project: .venv/venv if present, else the first python on PATH. The result names the interpreter checked.",
     "git.version": "Git is needed to clone, branch and commit. Install: https://git-scm.com/downloads",
     "node.version": "Node.js runs JavaScript tooling. Many projects pin a version; see project.node.* checks.",
