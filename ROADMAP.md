@@ -36,7 +36,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 
 **Quality**
 - [x] Real-tool runtime tests on CI (`tests/integration/test_runtimes_real.py`), including pnpm and Bun (installed in the CI job).
-- [x] GitHub Action runs on Ubuntu/Windows/macOS in CI (pass, fail and baseline fixtures). Not covered: `sarif` and multi-id `only`/`skip`.
+- [x] GitHub Action runs on Ubuntu/Windows/macOS in CI (pass, fail, baseline and SARIF fixtures, plus multi-id `only`/`skip` with JSON assertions).
 - [x] macOS/Linux compiler lookup runs for real on GitHub's Ubuntu and macOS runners (`tests/integration/`). Not covered: a machine *without* a toolchain, and Windows warning branches on a locked-down machine.
 
 ## Team features
