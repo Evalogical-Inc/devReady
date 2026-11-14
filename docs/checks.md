@@ -7,6 +7,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | Check id | What it means |
 |---|---|
 | `bun.version` | Bun runtime and package manager; checked only when package.json packageManager names bun. |
+| `dart.version` | Dart runtime; checked only when pubspec.yaml or .tool-versions declares it. |
 | `deno.version` | Deno CLI; checked only when .dvmrc or .tool-versions pins it. |
 | `disk.space` | Warns below 1 GB free where the project lives; installs and builds can fail when the disk is full. |
 | `docker.backend` | Windows only, when Docker is running. Warns when Docker Desktop uses the Hyper-V engine instead of WSL 2, or is in Windows containers mode while the Dockerfile builds a Linux image. `docker info` output is never shown. |
@@ -31,6 +32,8 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.bun.pin` | package.json packageManager pins the Bun version. |
 | `project.bun.tool_versions` | .tool-versions (asdf/mise) pins Bun for this project. |
 | `project.config.file` | .devready.json is optional. With unknown keys or invalid values it is ignored entirely. Run `devready init` for a starter. |
+| `project.dart.pubspec` | pubspec.yaml declares the required Dart version range. A mismatch fails the check. |
+| `project.dart.tool_versions` | .tool-versions (asdf/mise) pins Dart for this project. |
 | `project.deno.pin` | .dvmrc pins Deno for this project. A mismatch is a warning. |
 | `project.deno.tool_versions` | .tool-versions (asdf/mise) pins Deno for this project. |
 | `project.dotnet.global` | global.json sdk.version pins the .NET SDK for this project. |
