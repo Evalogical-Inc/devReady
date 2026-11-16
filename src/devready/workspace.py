@@ -79,6 +79,8 @@ def _expand(root: Path, real_root: Path, pattern: str) -> list[PurePosixPath]:
     if not head or rest not in ("", "*") or _UNSUPPORTED.search(head):
         return []
     base = PurePosixPath(head)
+    if any(part in SKIP for part in base.parts):
+        return []
     if not _real(root / base, real_root / base):
         return []
     if not star:

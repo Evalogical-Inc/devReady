@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Recursive discovery now excludes tool folders even when an explicit npm/pnpm workspace pattern targets one or a package below it, matching automatic scan behavior.
 - Check Terraform pins from `.terraform-version` and `.tool-versions`; warn on mismatches.
 - Read Java version pins from `.sdkmanrc`, after `.java-version`, without executing SDKMAN configuration.
 - Check Deno pins from `.dvmrc` and `.tool-versions`; warn on mismatches.

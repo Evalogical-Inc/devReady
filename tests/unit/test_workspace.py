@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from devready.workspace import discover_packages
+from devready.workspace import SKIP, discover_packages
 
 
 def write(root, rel, text=""):
@@ -119,3 +119,23 @@ def test_star_pattern_matches_children_not_the_folder_itself(tmp_path):
     write(tmp_path, "packages/package.json", "{}")
     write(tmp_path, "packages/web/package.json", "{}")
     assert discover_packages(tmp_path) == [".", "packages/web"]
+
+
+@pytest.mark.parametrize("excluded", sorted(SKIP))
+@pytest.mark.parametrize("suffix", ["", "/*", "/**"])
+@pytest.mark.parametrize("prefix", ["", "packages/"])
+def test_explicit_patterns_cannot_enter_tool_folders(tmp_path, excluded, suffix, prefix):
+    base = prefix + excluded
+    write(tmp_path, "package.json", json.dumps({"workspaces": [base + suffix, "apps/*"]}))
+    write(tmp_path, f"{base}/package.json", "{}")
+    write(tmp_path, f"{base}/dependency/package.json", "{}")
+    write(tmp_path, "apps/web/package.json", "{}")
+
+    assert discover_packages(tmp_path) == [".", "apps/web"]
+
+
+def test_pnpm_literal_pattern_cannot_target_package_inside_tool_folder(tmp_path):
+    write(tmp_path, "pnpm-workspace.yaml", "packages:\n  - node_modules/dependency\n")
+    write(tmp_path, "node_modules/dependency/package.json", "{}")
+
+    assert discover_packages(tmp_path) == ["."]
