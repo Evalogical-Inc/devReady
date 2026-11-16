@@ -14,8 +14,21 @@ _PLAIN = re.compile(r"v?(\d+(?:\.\d+){0,2})")
 
 # runtime key (as in project.py PINS / runtimes.py RUNTIMES) -> [(exe on PATH, template)].
 # First manager found wins. Add one row per manager; {v} is the pinned version.
+# Shell-only nvm installations are intentionally not detected by PATH lookup.
+# asdf commands target 0.16+ (set replaced local); the runtime plugin must exist.
+# Abbreviated asdf pins use its latest: prefix syntax when formatting the command.
 MANAGERS: dict[str, list[tuple[str, str]]] = {
-    "node": [("fnm", "fnm use --install-if-missing {v}")],
+    "node": [
+        ("fnm", "fnm use --install-if-missing {v}"),
+        ("nvm", "nvm install {v} && nvm use {v}"),
+        ("mise", "mise use node@{v}"),
+        ("asdf", "asdf install nodejs {v} && asdf set nodejs {v}"),
+    ],
+    "python": [
+        ("pyenv", "pyenv install -s {v} && pyenv local {v}"),
+        ("mise", "mise use python@{v}"),
+        ("asdf", "asdf install python {v} && asdf set python {v}"),
+    ],
 }
 
 
@@ -27,5 +40,8 @@ def command(
         return None
     for exe, template in MANAGERS.get(runtime, []):
         if (which or shutil.which)(exe):
-            return template.format(v=m.group(1))
+            version = m.group(1)
+            if exe == "asdf" and version.count(".") < 2:
+                version = f"latest:{version}"
+            return template.format(v=version)
     return None
