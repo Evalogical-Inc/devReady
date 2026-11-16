@@ -63,3 +63,38 @@ def test_every_pin_row_fires_from_its_files(tmp_path):
     assert [got[i].status for i in got] == [Status.PASS] * 4
     assert got["project.node.pin"].file == ".node-version"
     assert "pyproject requires-python" in got["project.python.requires"].summary
+
+
+@pytest.mark.parametrize(
+    "spec, lower, accepted, upper",
+    [
+        ("^0.2.3", "0.2.2", "0.2.9", "0.3.0"),
+        ("^0.0.3", "0.0.2", "0.0.3", "0.0.4"),
+        ("^0.0.0", None, "0.0.0", "0.0.1"),
+        ("^0.2", "0.1.9", "0.2.9", "0.3.0"),
+        ("^0.0", None, "0.0.9", "0.1.0"),
+        ("^0", None, "0.9.9", "1.0.0"),
+        ("^0.x", None, "0.9.9", "1.0.0"),
+        ("^0.0.x", None, "0.0.9", "0.1.0"),
+        ("^1.2.3", "1.2.2", "1.9.9", "2.0.0"),
+    ],
+)
+def test_caret_range_boundaries(spec, lower, accepted, upper):
+    if lower is not None:
+        assert satisfies(parse_version(lower), spec) is False
+    assert satisfies(parse_version(accepted), spec) is True
+    assert satisfies(parse_version(upper), spec) is False
+
+
+def test_zero_major_caret_engine_reports_mismatch(tmp_path):
+    (tmp_path / "package.json").write_text(json.dumps({"engines": {"node": "^0.12.0"}}))
+    result = check_project(tmp_path, "0.13.0", None)[0]
+    assert result.check_id == "project.node.engines"
+    assert result.status is Status.FAIL
+
+
+def test_zero_major_caret_in_combined_ranges():
+    assert satisfies((0, 3, 0), "^0.2.3 || ^1.0.0") is False
+    assert satisfies((1, 5, 0), "^0.2.3 || ^1.0.0") is True
+    assert satisfies((0, 2, 5), "^0.2.3 <0.2.6") is True
+    assert satisfies((0, 2, 6), "^0.2.3 <0.2.6") is False
