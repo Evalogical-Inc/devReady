@@ -12,6 +12,7 @@ Built for humans, CI, and AI coding agents (Claude Code, Codex, any MCP client).
 [![npm](https://img.shields.io/npm/v/devready-cli)](https://www.npmjs.com/package/devready-cli)
 [![DevReady](https://img.shields.io/badge/DevReady-%E2%9C%93%20ready-2ea44f)](https://github.com/Evalogical-Inc/devReady)
 [![Website](https://img.shields.io/badge/website-devready--ten.vercel.app-ff6a35)](https://devready-ten.vercel.app/)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-DevReady-ff6154?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/devready-2)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)
