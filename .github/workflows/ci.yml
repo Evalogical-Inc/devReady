@@ -57,6 +57,45 @@ jobs:
           project: tests/fixtures/action-pass
           only: project
           format: junit
+      - name: Multiple only prefixes include both project and git checks
+        uses: ./
+        with:
+          project: tests/fixtures/action-pass
+          only: project git
+          format: json
+          output: devready-only.json
+      - name: Check both only prefixes are present
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json
+          with open("devready-only.json", encoding="utf-8") as report:
+              ids = {r["check_id"] for r in json.load(report)["results"]}
+          assert any(i.startswith("project.") for i in ids), ids
+          assert any(i.startswith("git.") for i in ids), ids
+          assert all(i.startswith(("project.", "git.")) for i in ids), ids
+          PYTHON
+      - name: Multiple skip ids remove the known failure and git identity
+        uses: ./
+        with:
+          project: tests/fixtures/action-fail
+          only: project git
+          skip: project.python.requires git.identity
+          format: json
+          output: devready-skip.json
+      - name: Check skipped ids are absent and remaining checks still ran
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json
+          with open("devready-skip.json", encoding="utf-8") as report:
+              results = json.load(report)["results"]
+          ids = {r["check_id"] for r in results}
+          assert "project.python.requires" not in ids, ids
+          assert "git.identity" not in ids, ids
+          assert "git.version" in ids, ids
+          assert all(r["status"] not in ("fail", "error") for r in results), results
+          PYTHON
       - name: Failing project fails the job
         id: bad
         uses: ./
