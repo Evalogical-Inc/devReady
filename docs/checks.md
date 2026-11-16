@@ -36,6 +36,7 @@ With `--recursive` the ids are the same; each result is listed under the package
 | `project.env.required` | Variable NAMES listed under env in .devready.json must be set in the environment. Values are never read. |
 | `project.go.mod` | The go directive in go.mod is the minimum Go version. A lower toolchain fails the check. |
 | `project.go.tool_versions` | .tool-versions (asdf/mise) pins Go for this project. |
+| `project.java.gradle` | build.gradle(.kts) declares `sourceCompatibility`, `targetCompatibility`, or a Java toolchain. The installed Java must be at least that version; literal declarations only (Groovy/Kotlin is never executed, comments are ignored). |
 | `project.java.maven` | pom.xml declares the Java release (`maven.compiler.release`, compiler source/target, or the compiler plugin's `release`). The installed Java must be at least that version; `${property}` is resolved only from the same file. |
 | `project.java.pin` | .java-version pins Java for this project (jenv, mise). |
 | `project.java.tool_versions` | .tool-versions (asdf/mise) pins Java for this project. |

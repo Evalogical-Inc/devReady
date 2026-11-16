@@ -250,3 +250,67 @@ def test_pom_java_id_has_an_explanation(tmp_path):
     )
     ids = {r.check_id for r in check_runtimes(tmp_path, fake({"java": "17.0.9"}))}
     assert "project.java.maven" in ids and ids <= set(EXPLANATIONS)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "sourceCompatibility = JavaVersion.VERSION_17",
+        "targetCompatibility = JavaVersion.VERSION_17",
+        'sourceCompatibility = "17"',
+        "sourceCompatibility = 17",
+    ],
+)
+def test_gradle_java_target_is_a_minimum(tmp_path, line):
+    (tmp_path / "build.gradle").write_text(line + "\n")
+    assert run(tmp_path, {"java": "17.0.9"})["project.java.gradle"].status is Status.PASS
+    result = run(tmp_path, {"java": "11.0.2"})["project.java.gradle"]
+    assert result.status is Status.FAIL and ">=17" in result.summary
+
+
+@pytest.mark.parametrize("filename", ["build.gradle", "build.gradle.kts"])
+def test_gradle_java_toolchain_is_read(tmp_path, filename):
+    (tmp_path / filename).write_text(
+        "java {\n  toolchain {\n    languageVersion = JavaLanguageVersion.of(17)\n  }\n}\n"
+    )
+    assert run(tmp_path, {"java": "17.0.9"})["project.java.gradle"].status is Status.PASS
+    assert run(tmp_path, {"java": "11.0.2"})["project.java.gradle"].status is Status.FAIL
+
+
+def test_gradle_legacy_one_dot_eight(tmp_path):
+    (tmp_path / "build.gradle").write_text("sourceCompatibility = JavaVersion.VERSION_1_8\n")
+    assert run(tmp_path, {"java": "1.8.0"})["project.java.gradle"].status is Status.PASS
+    assert run(tmp_path, {"java": "1.7.0"})["project.java.gradle"].status is Status.FAIL
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "// sourceCompatibility = JavaVersion.VERSION_17\n",
+        "/* sourceCompatibility = 17 */\n",
+        'sourceCompatibility = project.property("javaVersion")\n',
+        "sourceCompatibility = JavaVersion.VERSION_1_17_X\n",
+    ],
+)
+def test_gradle_without_a_supported_target_does_not_probe(tmp_path, text):
+    (tmp_path / "build.gradle").write_text(text)
+
+    def unexpected_tool(*args):
+        pytest.fail("No supported Java target; no tool should be probed")
+
+    assert check_runtimes(tmp_path, unexpected_tool) == []
+
+
+def test_pom_target_wins_over_gradle(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        POM.format("<maven.compiler.release>21</maven.compiler.release>")
+    )
+    (tmp_path / "build.gradle").write_text("sourceCompatibility = 17\n")
+    results = run(tmp_path, {"java": "21.0.1"})
+    assert set(results) == {"java.version", "project.java.maven"}
+
+
+def test_gradle_java_id_has_an_explanation(tmp_path):
+    (tmp_path / "build.gradle").write_text("sourceCompatibility = 17\n")
+    ids = {r.check_id for r in check_runtimes(tmp_path, fake({"java": "17.0.9"}))}
+    assert "project.java.gradle" in ids and ids <= set(EXPLANATIONS)
