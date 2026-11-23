@@ -105,3 +105,44 @@ jobs:
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -am "devready $v"
           git push origin HEAD
           gh pr create --title "devready $v" --body "Bump to the PyPI release devready-cli $v (rendered by Evalogical-Inc/devReady publish.yml)."
+  vscode:
+    # VS Code extension (vscode/): VS Marketplace + Open VSX. Versioned by vscode/package.json, not
+    # the tag, so bump it there when the extension changes. A version that is already published is
+    # skipped (re-runs are safe). Needs repository secrets VSCE_PAT and OVSX_PAT (maintainer setup);
+    # without one, that registry is skipped with a notice instead of failing the release.
+    needs: publish
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' && !contains(github.ref_name, '-') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: vscode
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devready-vscode
+          path: vscode/devready.vsix
+      - name: Publish to the VS Marketplace
+        if: ${{ env.VSCE_PAT != '' }}
+        run: npx vsce publish --packagePath devready.vsix --skip-duplicate
+        # vsce reads VSCE_PAT from the environment
+      - name: Publish to Open VSX
+        if: ${{ env.OVSX_PAT != '' }}
+        run: npx ovsx publish devready.vsix --skip-duplicate
+        # ovsx reads OVSX_PAT from the environment
+      - name: Say which registries were skipped
+        if: ${{ env.VSCE_PAT == '' || env.OVSX_PAT == '' }}
+        run: echo "::warning::VSCE_PAT or OVSX_PAT is not set; that registry was skipped. The .vsix is attached to this run."

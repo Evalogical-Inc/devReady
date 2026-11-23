@@ -126,3 +126,24 @@ jobs:
         run: |
           test "${{ steps.sarif.outcome }}" = "failure"
           python -c "import json; assert json.load(open('devready.sarif'))['runs'][0]['results']"
+  vscode:
+    # VS Code extension (vscode/): unit tests, then the extension-host test. Ubuntu only (xvfb).
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vscode
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -e ..   # the extension runs the real `devready` CLI
+      - run: npm ci
+      - run: npm test
+      - run: npm run package   # the .vsix must build (publish.yml ships it)
+      - run: xvfb-run -a npm run test:integration

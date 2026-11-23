@@ -1,0 +1,70 @@
+{
+  "name": "devready-vscode",
+  "displayName": "DevReady",
+  "description": "Status bar and Problems panel for DevReady: is this machine ready to work on this project?",
+  "version": "0.1.0",
+  "publisher": "evalogical",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/Evalogical-Inc/devReady#readme",
+  "bugs": "https://github.com/Evalogical-Inc/devReady/issues",
+  "keywords": ["devready", "environment", "preflight", "nvmrc", "onboarding", "node", "python"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Evalogical-Inc/devReady.git",
+    "directory": "vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "workspaceContains:.nvmrc",
+    "workspaceContains:.node-version",
+    "workspaceContains:.python-version",
+    "workspaceContains:.tool-versions",
+    "workspaceContains:package.json",
+    "workspaceContains:pyproject.toml",
+    "workspaceContains:.devready.json"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "DevReady runs a local command, so it is disabled in untrusted workspaces."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "devready.check",
+        "title": "DevReady: Check"
+      },
+      {
+        "command": "devready.explain",
+        "title": "DevReady: Explain…"
+      },
+      {
+        "command": "devready.fixPlan",
+        "title": "DevReady: Show fix plan"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "package": "npm run compile && vsce package --no-dependencies -o devready.vsix",
+    "test:integration": "npm run compile && node test-integration/run.js",
+    "test": "npm run compile && node --test \"test/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^4.1.1",
+    "ovsx": "^1.4.0",
+    "typescript": "^5.4.0"
+  }
+}

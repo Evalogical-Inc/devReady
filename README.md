@@ -257,6 +257,23 @@ pre-commit sets to include the hook environment. To check a specific project Pyt
 create its virtual environment before running the hook. To run before commits instead, set
 `stages: [pre-commit]` on the hook and install with `--hook-type pre-commit`.
 
+## Use it in VS Code
+
+The [`vscode/`](vscode/) folder holds a VS Code extension (not published to a marketplace yet,
+see #45). It shows `DevReady: ✓` / `2 warn` / `1 fail` in the status bar, puts a diagnostic on
+the pin file that is not satisfied (Problems panel), re-runs when you save a pin file, and adds
+`DevReady: Check`, `Explain…` and `Show fix plan` commands. It is read-only: it shows a fix plan
+but never runs it, sends no telemetry, and is disabled in untrusted workspaces.
+
+Until it is published, build and install it from a checkout (Node 18+; needs `devready` on PATH):
+
+```bash
+cd vscode
+npm ci
+npm run package
+code --install-extension devready.vsix
+```
+
 ## Add the badge
 
 Tell contributors your project declares its requirements and can be checked with one command. Paste this into your README:

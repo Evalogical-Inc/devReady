@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- New VS Code extension in `vscode/` (#45), not yet on a marketplace: status bar summary, Problems-panel diagnostics on pin files, re-run on save, `DevReady: Check` / `Explain…` / `Show fix plan` commands and an "Explain this check" quick fix. It runs `devready check --format sarif`, never runs fix commands, has no telemetry and is disabled in untrusted workspaces. `publish.yml` gains a `vscode` job for the VS Marketplace and Open VSX that is skipped without `VSCE_PAT` / `OVSX_PAT`. The CLI is unchanged.
 - Check Terraform pins from `.terraform-version` and `.tool-versions`; warn on mismatches.
 - Read Java version pins from `.sdkmanrc`, after `.java-version`, without executing SDKMAN configuration.
 - Check Deno pins from `.dvmrc` and `.tool-versions`; warn on mismatches.
