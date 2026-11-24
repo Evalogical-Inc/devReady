@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Correct zero-major caret ranges: `^0.2.3` now rejects `0.3.0`, and `^0.0.3` rejects `0.0.4`. Partial and wildcard caret ranges keep their documented npm-style bounds.
 - Check Terraform pins from `.terraform-version` and `.tool-versions`; warn on mismatches.
 - Read Java version pins from `.sdkmanrc`, after `.java-version`, without executing SDKMAN configuration.
 - Check Deno pins from `.dvmrc` and `.tool-versions`; warn on mismatches.

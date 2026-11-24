@@ -1,7 +1,7 @@
 """Tiny version/range matcher for npm-style (engines) and PEP 440-style (requires-python) specs.
 
 ponytail: handles >=,>,<=,<,==,!=,^,~,~= and bare/partial versions, joined by space/comma (AND)
-or `||` (OR). Ignores pre-releases, 0.x caret rules and `~1.2` vs `~=1.2` differences.
+or `||` (OR). Ignores pre-releases and `~1.2` vs `~=1.2` differences.
 Anything it cannot fully parse returns None ("could not evaluate"); upgrade to `packaging`
 only if real projects hit this.
 """
@@ -42,7 +42,10 @@ def _term_ok(ver: Version, op: str, want: Version) -> bool:
     if op == "!=":
         return ver[:n] != want
     if op == "^":
-        return _pad(ver) >= _pad(want) and ver[:1] == want[:1]
+        # Keep components through the first nonzero value fixed. An all-zero
+        # partial pin fixes only its specified components (^0.0 allows 0.0.x).
+        k = next((i + 1 for i, part in enumerate(want) if part), n)
+        return _pad(ver) >= _pad(want) and _pad(ver)[:k] == want[:k]
     if op in ("~", "~="):
         k = max(n - 1, 1)
         return _pad(ver) >= _pad(want) and ver[:k] == want[:k]
