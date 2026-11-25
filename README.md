@@ -103,6 +103,22 @@ From [Homebrew](https://brew.sh/) on macOS and Linux:
 brew install evalogical-inc/tap/devready
 ```
 
+**Standalone binary (no Python, Node or `uv` needed).** Each release attaches an archive per platform to the [GitHub release](https://github.com/Evalogical-Inc/devReady/releases/latest), with a `SHA256SUMS` file: `windows-x64`, `macos-arm64`, `macos-x64` and `linux-x64`. It is the same package and behaves the same (output, exit codes and check ids are unchanged); it just carries its own interpreter.
+
+```bash
+# macOS/Linux (replace VERSION and TARGET, e.g. 1.4.0 and linux-x64)
+curl -LO https://github.com/Evalogical-Inc/devReady/releases/download/vVERSION/devready-VERSION-TARGET.tar.gz
+curl -LO https://github.com/Evalogical-Inc/devReady/releases/download/vVERSION/SHA256SUMS
+sha256sum --ignore-missing -c SHA256SUMS      # macOS: shasum -a 256 -c SHA256SUMS --ignore-missing
+tar xzf devready-VERSION-TARGET.tar.gz && ./devready-VERSION-TARGET/devready check
+
+# Windows (PowerShell): download devready-VERSION-windows-x64.zip, then
+Get-FileHash devready-VERSION-windows-x64.zip -Algorithm SHA256   # compare with SHA256SUMS
+Expand-Archive devready-VERSION-windows-x64.zip . ; .\devready-VERSION-windows-x64\devready.exe check
+```
+
+The binaries are built in public CI from the tagged source and are not code-signed yet. On macOS the first run may need `xattr -d com.apple.quarantine ./devready`; Windows SmartScreen may warn about an unrecognised app; and some antivirus tools flag any executable made with PyInstaller. Verify the checksum, and if your security tool blocks the file use `pipx` or `uvx` above instead.
+
 No Python tooling yet (for example a JavaScript-only machine)? `uv` installs without Python, and `uvx` then runs DevReady with no further setup:
 
 ```bash
@@ -318,7 +334,7 @@ See [docs/security.md](docs/security.md) for the model, [docs/versioning.md](doc
 - [ ] Org `--policy` file (#44), VS Code extension (#45) (see [ROADMAP.md](ROADMAP.md))
 - [x] pre-commit hook (#32)
 - [ ] Homebrew tap (#31)
-- [ ] Standalone binaries
+- [ ] Standalone binaries (#60; build and release job added, ticked once a release ships them)
 
 Have a setup problem DevReady should catch? [Open an issue](https://github.com/Evalogical-Inc/devReady/issues/new/choose). Early feedback shapes the roadmap.
 

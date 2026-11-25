@@ -1,0 +1,51 @@
+name: Build binaries
+# Standalone executables (no Python needed). Builds on every relevant PR so a broken build is caught
+# before a release; publish.yml calls this and then attaches the archives to the GitHub release.
+on:
+  pull_request:
+    paths:
+      - "packaging/**"
+      - "src/**"
+      - "pyproject.toml"
+      - ".github/workflows/build-binaries.yml"
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: windows-x64, runner: windows-latest }
+          - { target: macos-arm64, runner: macos-latest }
+          - { target: macos-x64, runner: macos-15-intel }  # Intel runner; confirm the label still exists
+          - { target: linux-x64, runner: ubuntu-latest }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install . -r packaging/requirements.txt
+      - run: python packaging/build.py ${{ matrix.target }}
+      # The binary must run with no Python on PATH, and keep the 1.x CLI contract.
+      - name: Smoke test (no Python on PATH)
+        shell: bash
+        env:
+          SMOKE_NO_PYTHON: "1"
+        run: |
+          case "${{ matrix.target }}" in windows-*) bin=dist/bin/devready.exe;; *) bin=dist/bin/devready;; esac
+          python packaging/smoke.py "$bin" | tee smoke.txt
+          {
+            echo "### ${{ matrix.target }}"
+            echo '```'
+            cat smoke.txt
+            echo "size: $(du -h "$bin" | cut -f1)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devready-${{ matrix.target }}
+          path: dist/devready-*.*
+          if-no-files-found: error

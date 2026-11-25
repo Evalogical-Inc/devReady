@@ -105,3 +105,38 @@ jobs:
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -am "devready $v"
           git push origin HEAD
           gh pr create --title "devready $v" --body "Bump to the PyPI release devready-cli $v (rendered by Evalogical-Inc/devReady publish.yml)."
+  binaries:
+    # Standalone executables for machines without Python (full releases only, like homebrew).
+    needs: github-release
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' && !contains(github.ref_name, '-') }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-binaries.yml
+  release-assets:
+    needs: binaries
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' && !contains(github.ref_name, '-') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # upload to the GitHub Release
+      id-token: write       # build provenance attestation
+      attestations: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: devready-*
+          path: assets
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd assets
+          sha256sum devready-* > SHA256SUMS
+          cat SHA256SUMS
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: assets/devready-*
+      - name: Attach to the release (re-runs replace the files)
+        run: gh release upload "$TAG" assets/* --clobber

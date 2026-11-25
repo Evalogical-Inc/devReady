@@ -32,7 +32,7 @@ Principles: read-only, local-first, zero runtime dependencies, Python >= 3.10, n
 **Distribution**
 - [ ] Homebrew tap: `brew install evalogical-inc/tap/devready` (#31).
 - [x] pre-commit hook, `.pre-commit-hooks.yaml` (#32, unreleased; see the README).
-- [ ] Standalone binaries (no design yet).
+- [ ] Standalone binaries (#60): PyInstaller builds for Windows x64, macOS arm64/x64 and Linux x64 with checksums. Ticked once a release ships them.
 
 **Quality**
 - [x] Real-tool runtime tests on CI (`tests/integration/test_runtimes_real.py`), including pnpm and Bun (installed in the CI job).

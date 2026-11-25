@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Standalone binaries for machines without Python (#60): each full release attaches `devready-<version>-<target>` archives for Windows x64, macOS arm64, macOS x64 and Linux x64 plus a `SHA256SUMS` file and a build attestation. Built with PyInstaller in `build-binaries.yml` and smoke-tested with no Python on PATH. Not code-signed yet. The CLI, output, exit codes and check ids are unchanged; the CLI makes no new network calls.
 - Check Terraform pins from `.terraform-version` and `.tool-versions`; warn on mismatches.
 - Read Java version pins from `.sdkmanrc`, after `.java-version`, without executing SDKMAN configuration.
 - Check Deno pins from `.dvmrc` and `.tool-versions`; warn on mismatches.
